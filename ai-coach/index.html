@@ -185,10 +185,12 @@
         });
     }
 
-    function addMessageToChat(text, sender) {
+function addMessageToChat(text, sender) {
         const chatHistory = document.getElementById('chat-history');
         const messageDiv = document.createElement('div');
-        const messageId = 'msg-' + Date.now(); 
+        
+        // ADDED Math.random() to guarantee a unique ID every single time
+        const messageId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5); 
         
         messageDiv.id = messageId;
         messageDiv.classList.add('message', sender);
@@ -199,8 +201,9 @@
         // Auto-scroll to the bottom of the chat
         chatHistory.scrollTop = chatHistory.scrollHeight; 
         
-        return messageId; // Returns the ID so we can update the '...' loading text later
+        return messageId;
     }
+    
 
     function updateMessageInChat(messageId, newText) {
         const messageDiv = document.getElementById(messageId);
