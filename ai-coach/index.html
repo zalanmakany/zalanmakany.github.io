@@ -168,11 +168,21 @@
         const loadingId = addMessageToChat('...', 'bot');
 
         // 3. API INTEGRATION POINT
-        // TODO: Replace this setTimeout block with an actual fetch() request to your serverless function or API.
-        setTimeout(() => {
-            const simulatedResponse = "That's a great starting point. To make it more Specific, what exactly does that look like to you? Are you aiming to achieve a certain milestone, or develop a specific skill?";
-            updateMessageInChat(loadingId, simulatedResponse);
-        }, 1200); // Simulates network delay
+        fetch("https://ai-coach-back.zalanmakany.workers.dev/", { 
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: messageText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            updateMessageInChat(loadingId, data.reply);
+        })
+        .catch(error => {
+            updateMessageInChat(loadingId, "Sorry, the AI coach is currently taking a break. Please try again later!");
+            console.error("Error:", error);
+        });
     }
 
     function addMessageToChat(text, sender) {
