@@ -171,7 +171,7 @@
           <option value="want-to-read">Want to read</option>
           <option value="reading">Reading</option>
           <option value="finished">Finished</option>
-          <option value = "paused">Paused</option>
+          <option value = "paused">On Pause</option>
         </select>
       </div>
       <div class="form-row">
@@ -237,7 +237,6 @@
       setLoggedIn(true);
       
     } catch (error) {
-      // This catches CORS errors or network failures
       alert("Network or CORS error! Press F12 and check the Console for details.");
       console.error("Fetch error:", error);
     }
@@ -325,7 +324,7 @@
   }
 
   function statusLabel(status) {
-    return { "want-to-read": "Want to read", reading: "Reading", finished: "Finished", paused:"Paused" }[status] || status;
+    return { "want-to-read": "Want to read", reading: "Reading", finished: "Finished", paused:"On Pause" }[status] || status;
   }
 
   function renderBooks() {
