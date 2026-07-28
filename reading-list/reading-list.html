@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reading List</title>
+<style>
+  :root {
+    --bg: #faf8f4;
+    --card: #ffffff;
+    --ink: #2b2620;
+    --muted: #756e63;
+    --accent: #a15c38;
+    --accent-soft: #f1e3d8;
+    --border: #e6ddd0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 2rem 1rem 4rem;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: 0.95rem;
+  }
+  button {
+    cursor: pointer;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+  }
+  button.secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  button.danger {
+    background: transparent;
+    color: #a13838;
+    border: 1px solid #a13838;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+  }
+  input, select, textarea {
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 100%;
+    background: #fff;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+
+  .login-box {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .login-box input { max-width: 180px; }
+
+  .book-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.3rem;
+    margin-bottom: 1rem;
+  }
+  .book-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .book-title { font-weight: 600; font-size: 1.05rem; }
+  .book-author { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+  .status-pill {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .progress-track {
+    background: var(--accent-soft);
+    border-radius: 999px;
+    height: 8px;
+    margin: 0.7rem 0 0.3rem;
+    overflow: hidden;
+  }
+  .progress-fill {
+    background: var(--accent);
+    height: 100%;
+  }
+  .progress-label { font-size: 0.8rem; color: var(--muted); }
+  .review { margin-top: 0.6rem; font-size: 0.92rem; line-height: 1.4; }
+  .rating { color: var(--accent); font-size: 0.9rem; margin-top: 0.4rem; }
+  .card-actions {
+    margin-top: 0.7rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .add-form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    margin-bottom: 1.5rem;
+    display: none;
+  }
+  .add-form.visible { display: block; }
+  .add-form h3 { margin-top: 0; }
+  .form-row { margin-bottom: 0.7rem; }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem;
+  }
+  .empty-state {
+    color: var(--muted);
+    text-align: center;
+    padding: 2rem 0;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Reading List</h1>
+  <p class="subtitle">Books I'm reading, have read, and want to read.</p>
+
+  <div class="top-bar">
+    <div id="loginArea" class="login-box">
+      <input type="password" id="passwordInput" placeholder="Admin password">
+      <button id="loginBtn">Sign in</button>
+    </div>
+    <div id="adminArea" style="display:none; gap:0.5rem; display:none;">
+      <button id="addToggleBtn">+ Add book</button>
+      <button class="secondary" id="logoutBtn">Sign out</button>
+    </div>
+  </div>
+
+  <div class="add-form" id="addForm">
+    <h3 id="formTitle">Add a book</h3>
+    <input type="hidden" id="editId">
+    <div class="form-row">
+      <input type="text" id="fTitle" placeholder="Title">
+    </div>
+    <div class="form-row">
+      <input type="text" id="fAuthor" placeholder="Author">
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <select id="fStatus">
+          <option value="want-to-read">Want to read</option>
+          <option value="reading">Reading</option>
+          <option value="finished">Finished</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <input type="number" id="fRating" placeholder="Rating (1-5)" min="1" max="5">
+      </div>
+      <div class="form-row">
+        <input type="number" id="fPagesRead" placeholder="Pages read">
+      </div>
+      <div class="form-row">
+        <input type="number" id="fTotalPages" placeholder="Total pages">
+      </div>
+    </div>
+    <div class="form-row">
+      <textarea id="fReview" placeholder="Your review / notes"></textarea>
+    </div>
+    <button id="saveBtn">Save</button>
+    <button class="secondary" id="cancelFormBtn" type="button">Cancel</button>
+  </div>
+
+  <div id="books"></div>
+</div>
+
+<script>
+  // ---- Configure this to your deployed Worker URL ----
+  const API_BASE = "https://reading-list-api.YOUR-SUBDOMAIN.workers.dev";
+
+  let token = localStorage.getItem("rl_token") || null;
+  let books = [];
+
+  const loginArea = document.getElementById("loginArea");
+  const adminArea = document.getElementById("adminArea");
+  const addForm = document.getElementById("addForm");
+  const booksEl = document.getElementById("books");
+
+  function setLoggedIn(isLoggedIn) {
+    loginArea.style.display = isLoggedIn ? "none" : "flex";
+    adminArea.style.display = isLoggedIn ? "flex" : "none";
+    if (!isLoggedIn) addForm.classList.remove("visible");
+  }
+  setLoggedIn(!!token);
+
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    const password = document.getElementById("passwordInput").value;
+    const res = await fetch(`${API_BASE}/api/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+    if (!res.ok) {
+      alert("Wrong password");
+      return;
+    }
+    const data = await res.json();
+    token = data.token;
+    localStorage.setItem("rl_token", token);
+    document.getElementById("passwordInput").value = "";
+    setLoggedIn(true);
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    token = null;
+    localStorage.removeItem("rl_token");
+    setLoggedIn(false);
+  });
+
+  document.getElementById("addToggleBtn").addEventListener("click", () => {
+    resetForm();
+    addForm.classList.add("visible");
+  });
+  document.getElementById("cancelFormBtn").addEventListener("click", () => {
+    addForm.classList.remove("visible");
+  });
+
+  function resetForm() {
+    document.getElementById("formTitle").textContent = "Add a book";
+    document.getElementById("editId").value = "";
+    document.getElementById("fTitle").value = "";
+    document.getElementById("fAuthor").value = "";
+    document.getElementById("fStatus").value = "want-to-read";
+    document.getElementById("fRating").value = "";
+    document.getElementById("fPagesRead").value = "";
+    document.getElementById("fTotalPages").value = "";
+    document.getElementById("fReview").value = "";
+  }
+
+  function fillForm(book) {
+    document.getElementById("formTitle").textContent = "Edit book";
+    document.getElementById("editId").value = book.id;
+    document.getElementById("fTitle").value = book.title;
+    document.getElementById("fAuthor").value = book.author;
+    document.getElementById("fStatus").value = book.status;
+    document.getElementById("fRating").value = book.rating || "";
+    document.getElementById("fPagesRead").value = book.pagesRead || "";
+    document.getElementById("fTotalPages").value = book.totalPages || "";
+    document.getElementById("fReview").value = book.review || "";
+    addForm.classList.add("visible");
+  }
+
+  document.getElementById("saveBtn").addEventListener("click", async () => {
+    const id = document.getElementById("editId").value;
+    const payload = {
+      title: document.getElementById("fTitle").value.trim(),
+      author: document.getElementById("fAuthor").value.trim(),
+      status: document.getElementById("fStatus").value,
+      rating: document.getElementById("fRating").value || null,
+      pagesRead: document.getElementById("fPagesRead").value || 0,
+      totalPages: document.getElementById("fTotalPages").value || 0,
+      review: document.getElementById("fReview").value.trim(),
+    };
+    if (!payload.title) {
+      alert("Title is required");
+      return;
+    }
+    const url = id ? `${API_BASE}/api/books/${id}` : `${API_BASE}/api/books`;
+    const method = id ? "PUT" : "POST";
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      alert("Save failed — try signing in again.");
+      return;
+    }
+    addForm.classList.remove("visible");
+    await loadBooks();
+  });
+
+  async function deleteBook(id) {
+    if (!confirm("Delete this book?")) return;
+    await fetch(`${API_BASE}/api/books/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    await loadBooks();
+  }
+
+  function statusLabel(status) {
+    return { "want-to-read": "Want to read", reading: "Reading", finished: "Finished" }[status] || status;
+  }
+
+  function renderBooks() {
+    if (!books.length) {
+      booksEl.innerHTML = `<p class="empty-state">No books yet.</p>`;
+      return;
+    }
+    booksEl.innerHTML = books.map((b) => {
+      const pct = b.totalPages > 0 ? Math.min(100, Math.round((b.pagesRead / b.totalPages) * 100)) : (b.status === "finished" ? 100 : 0);
+      const stars = b.rating ? "★".repeat(b.rating) + "☆".repeat(5 - b.rating) : "";
+      return `
+        <div class="book-card">
+          <div class="book-head">
+            <div>
+              <div class="book-title">${escapeHtml(b.title)}</div>
+              <div class="book-author">${escapeHtml(b.author)}</div>
+            </div>
+            <span class="status-pill">${statusLabel(b.status)}</span>
+          </div>
+          ${b.totalPages ? `
+            <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+            <div class="progress-label">${b.pagesRead} / ${b.totalPages} pages (${pct}%)</div>
+          ` : ""}
+          ${stars ? `<div class="rating">${stars}</div>` : ""}
+          ${b.review ? `<div class="review">${escapeHtml(b.review)}</div>` : ""}
+          ${token ? `
+            <div class="card-actions">
+              <button class="secondary" onclick='editBookById("${b.id}")'>Edit</button>
+              <button class="danger" onclick='deleteBook("${b.id}")'>Delete</button>
+            </div>
+          ` : ""}
+        </div>
+      `;
+    }).join("");
+  }
+
+  function editBookById(id) {
+    const book = books.find((b) => b.id === id);
+    if (book) fillForm(book);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str || "";
+    return div.innerHTML;
+  }
+
+  async function loadBooks() {
+    const res = await fetch(`${API_BASE}/api/books`);
+    books = await res.json();
+    renderBooks();
+  }
+
+  loadBooks();
+</script>
+</body>
+</html>
