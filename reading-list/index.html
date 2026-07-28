@@ -171,6 +171,7 @@
           <option value="want-to-read">Want to read</option>
           <option value="reading">Reading</option>
           <option value="finished">Finished</option>
+          <option value = "paused">Paused</option>
         </select>
       </div>
       <div class="form-row">
@@ -324,7 +325,7 @@
   }
 
   function statusLabel(status) {
-    return { "want-to-read": "Want to read", reading: "Reading", finished: "Finished" }[status] || status;
+    return { "want-to-read": "Want to read", reading: "Reading", finished: "Finished", paused:"Paused" }[status] || status;
   }
 
   function renderBooks() {
