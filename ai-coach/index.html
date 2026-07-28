@@ -154,30 +154,33 @@
 </div>
 
 <script>
+   <script>
+    let conversationHistory = [];
+
     function sendMessage() {
         const inputField = document.getElementById('user-input');
         const messageText = inputField.value.trim();
         
         if (messageText === '') return;
 
-        // 1. Render the user's message in the chat
         addMessageToChat(messageText, 'user');
-        inputField.value = ''; // Clear input
+        inputField.value = ''; 
 
-        // 2. Render a temporary loading state for the bot
+        conversationHistory.push({ role: "user", content: messageText });
+
         const loadingId = addMessageToChat('...', 'bot');
 
-        // 3. API INTEGRATION POINT
         fetch("https://ai-coach-back.zalanmakany.workers.dev/", { 
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ message: messageText })
+            body: JSON.stringify({ history: conversationHistory }) 
         })
         .then(response => response.json())
         .then(data => {
             updateMessageInChat(loadingId, data.reply);
+            conversationHistory.push({ role: "assistant", content: data.reply });
         })
         .catch(error => {
             updateMessageInChat(loadingId, "Sorry, the AI coach is currently taking a break. Please try again later!");
@@ -185,30 +188,25 @@
         });
     }
 
-function addMessageToChat(text, sender) {
+    function addMessageToChat(text, sender) {
         const chatHistory = document.getElementById('chat-history');
         const messageDiv = document.createElement('div');
-        
-        // ADDED Math.random() to guarantee a unique ID every single time
         const messageId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5); 
         
         messageDiv.id = messageId;
         messageDiv.classList.add('message', sender);
-        messageDiv.innerText = text;
+        messageDiv.innerHTML = text; 
         
         chatHistory.appendChild(messageDiv);
-        
-        // Auto-scroll to the bottom of the chat
         chatHistory.scrollTop = chatHistory.scrollHeight; 
         
         return messageId;
     }
-    
 
     function updateMessageInChat(messageId, newText) {
         const messageDiv = document.getElementById(messageId);
         if (messageDiv) {
-            messageDiv.innerText = newText;
+            messageDiv.innerHTML = newText;
         }
     }
 
@@ -217,6 +215,7 @@ function addMessageToChat(text, sender) {
             sendMessage();
         }
     }
+</script>
 </script>
 
 </body>
