@@ -212,22 +212,34 @@
   }
   setLoggedIn(!!token);
 
-  document.getElementById("loginBtn").addEventListener("click", async () => {
+ document.getElementById("loginBtn").addEventListener("click", async () => {
     const password = document.getElementById("passwordInput").value;
-    const res = await fetch(`${API_BASE}/api/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
-    if (!res.ok) {
-      alert("Wrong password");
-      return;
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      
+      if (!res.ok) {
+        // This will catch 401 Unauthorized, 500 Server Errors, etc.
+        const errData = await res.json().catch(() => ({}));
+        alert(`Login failed: ${errData.error || res.statusText}`);
+        return;
+      }
+      
+      const data = await res.json();
+      token = data.token;
+      localStorage.setItem("rl_token", token);
+      document.getElementById("passwordInput").value = "";
+      setLoggedIn(true);
+      
+    } catch (error) {
+      // This catches CORS errors or network failures
+      alert("Network or CORS error! Press F12 and check the Console for details.");
+      console.error("Fetch error:", error);
     }
-    const data = await res.json();
-    token = data.token;
-    localStorage.setItem("rl_token", token);
-    document.getElementById("passwordInput").value = "";
-    setLoggedIn(true);
   });
 
   document.getElementById("logoutBtn").addEventListener("click", () => {
