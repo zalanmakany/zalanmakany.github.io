@@ -306,6 +306,23 @@
     return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
   }
 
+  // Averages every project's color with equal weight, then mixes the
+  // result heavily toward white so the page background stays a pale,
+  // muted tint rather than a saturated blend. The palette's "center
+  // of mass" — the more projects, the more it drifts to reflect them.
+  function averagePaperColor(hexColors, lightenAmount = 0.86) {
+    if (!hexColors.length) return null;
+    const totals = hexColors.reduce((acc, hex) => {
+      const { r, g, b } = hexToRgb(hex);
+      acc.r += r; acc.g += g; acc.b += b;
+      return acc;
+    }, { r: 0, g: 0, b: 0 });
+    const n = hexColors.length;
+    const avg = { r: totals.r / n, g: totals.g / n, b: totals.b / n };
+    const mix = c => Math.round(c + (255 - c) * lightenAmount);
+    return `rgb(${mix(avg.r)}, ${mix(avg.g)}, ${mix(avg.b)})`;
+  }
+
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str || '';
@@ -390,9 +407,16 @@
       return;
     }
 
-    legendEl.innerHTML = buildLegend(PROJECTS);
-    cardsEl.innerHTML = buildCards(PROJECTS);
-    diagramEl.innerHTML = buildDiagram(PROJECTS);
+    // Keep adding new projects to the end of PROJECTS — this just
+    // flips the display order so the newest one shows up first.
+    const displayOrder = [...PROJECTS].reverse();
+
+    legendEl.innerHTML = buildLegend(displayOrder);
+    cardsEl.innerHTML = buildCards(displayOrder);
+    diagramEl.innerHTML = buildDiagram(displayOrder);
+
+    const paper = averagePaperColor(PROJECTS.map(p => p.color));
+    if (paper) document.documentElement.style.setProperty('--paper', paper);
   }
 
   render();
