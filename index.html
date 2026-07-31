@@ -1,111 +1,401 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zalán Makány | Portfolio</title>
-    <style>
-        :root {
-            --bg: #f4f6f9;
-            --card: #ffffff;
-            --ink: #2c3e50;
-            --muted: #7f8c8d;
-            --accent: #3498db;
-            --border: #e1e8ed;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--ink);
-            margin: 0;
-            padding: 60px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            max-width: 780px;
-            width: 100%;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-        header h1 {
-            color: var(--ink);
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        header p {
-            color: var(--muted);
-            font-size: 1.1rem;
-            margin-top: 0;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 25px;
-            text-decoration: none;
-            color: inherit;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            flex-direction: column;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
-            border-color: var(--accent);
-        }
-        .card h2 {
-            margin-top: 0;
-            color: var(--ink);
-            font-size: 1.4rem;
-        }
-        .card p {
-            color: var(--muted);
-            line-height: 1.5;
-            flex-grow: 1;
-        }
-        .tag {
-            display: inline-block;
-            font-size: 0.8rem;
-            padding: 4px 12px;
-            border-radius: 999px;
-            background: #ebf5fb;
-            color: var(--accent);
-            font-weight: bold;
-            margin-top: 15px;
-            align-self: flex-start;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas — Zalan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #eef0ec;
+    --ink: #1f2421;
+    --muted: #6b756f;
+    --border: #dbe0da;
+    --pine: #46685f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 4.5rem 1.5rem 3rem;
+  }
+
+  .kicker {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pine);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.6rem;
+  }
+  .kicker::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--pine);
+    display: inline-block;
+  }
+
+  .hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(2.6rem, 7vw, 4.2rem);
+    line-height: 1;
+    margin: 0 0 0.9rem;
+  }
+
+  .hero p {
+    max-width: 34ch;
+    color: var(--muted);
+    font-size: 1.02rem;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .chart-diagram {
+    flex-shrink: 0;
+    width: 190px;
+    height: 190px;
+    opacity: 0.92;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.6rem;
+    align-items: center;
+    padding: 0.9rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.5);
+    margin-bottom: 2.6rem;
+  }
+  .legend-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    color: var(--ink);
+  }
+  .swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.4rem;
+  }
+
+  .chart-card {
+    position: relative;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.7rem 1.6rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    overflow: hidden;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .chart-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--c, var(--pine));
+  }
+
+  .chart-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(31,36,33,0.08);
+  }
+
+  .card-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 9px;
+    border-radius: 999px;
+    display: inline-block;
+    margin-bottom: 0.9rem;
+    background: var(--c-soft, #eee);
+    color: var(--c, var(--ink));
+  }
+
+  .chart-card h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem;
+  }
+
+  .chart-card p {
+    color: var(--muted);
+    font-size: 0.94rem;
+    line-height: 1.5;
+    margin: 0 0 1.1rem;
+  }
+
+  .visit {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--c, var(--pine));
+  }
+
+  .visit .arrow { transition: transform 0.18s ease; }
+  .chart-card:hover .visit .arrow { transform: translateX(3px); }
+
+  footer {
+    margin-top: 3.5rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.76rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .empty-hint {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--muted);
+    padding: 2rem;
+    text-align: center;
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+  }
+
+  @media (max-width: 640px) {
+    .hero { flex-direction: column; }
+    .chart-diagram { width: 130px; height: 130px; align-self: flex-end; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chart-card, .visit .arrow { transition: none; }
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Zalán Makány</h1>
-            <p>Econometrics & Operations Research</p>
-        </header>
+<div class="wrap">
 
-        <div class="grid">
-            <!-- Ensure the href matches your actual file names -->
-            <a href="reading-list" class="card">
-                <h2>Reading List</h2>
-                <p>A full-stack personal tracker for books I am reading, have finished, or want to read. Built with a custom Cloudflare Workers API.</p>
-                <span class="tag">Web App</span>
-            </a>
-            
-            <a href="ai-coach" class="card">
-                <h2>AI Coach</h2>
-                <p>A prototype Personal Development Plan assistant designed to facilitate self-reflection and refine goals into actionable steps.</p>
-                <span class="tag">AI / Prompting</span>
-            </a>
-        </div>
+  <div class="kicker">zalan.nl</div>
+
+  <div class="hero">
+    <div>
+      <h1>Atlas</h1>
+      <p>A small, growing index of things I've built. Each one keeps its own coordinates — colour-coded here so you know which world you're stepping into before you visit.</p>
     </div>
+    <div id="atlas-diagram"></div>
+  </div>
+
+  <div class="legend">
+    <span class="legend-title">Legend</span>
+    <span id="legend-items"></span>
+  </div>
+
+  <div class="grid" id="cards-grid"></div>
+
+  <footer>
+    <span>Zalan — built &amp; maintained by hand</span>
+    <span>updated July 2026</span>
+  </footer>
+
+</div>
+
+<script>
+  /* ============================================================
+     PROJECTS
+     To add a new project, add one object to this array. That's it —
+     the legend, the cards, and the chart diagram above all
+     regenerate from this list automatically.
+
+     id:          short unique slug, used internally (e.g. for SVG ids)
+     name:        display name of the project
+     tag:         small eyebrow label, e.g. "personal · notes"
+     legend:      short phrase shown in the legend, e.g. "reading & reflection"
+     description: one or two sentences shown on the card
+     href:        link to the live subpage
+     color:       hex color — pull this from the subpage's own accent
+     ============================================================ */
+  const PROJECTS = [
+    {
+      id: "reading-list",
+      name: "Reading List",
+      tag: "personal · notes",
+      legend: "reading & reflection",
+      description: "Books I'm reading, have read, and want to read — with progress bars, ratings, and notes as I go.",
+      href: "https://zalan.nl/reading-list",
+      color: "#a15c38"
+    },
+    {
+      id: "ai-coach",
+      name: "AI Coach",
+      tag: "prototype · coaching",
+      legend: "tools & prototypes",
+      description: "A conversational assistant that asks targeted questions to turn a vague ambition into a SMART goal.",
+      href: "https://zalan.nl/ai-coach",
+      color: "#3498db"
+    }
+
+    // Next project goes here, e.g.:
+    // {
+    //   id: "circle-packing",
+    //   name: "Circle Packing Explorer",
+    //   tag: "math · visual",
+    //   legend: "open problems",
+    //   description: "An interactive look at hexagonal circle packing in equilateral triangles.",
+    //   href: "https://zalan.nl/circle-packing",
+    //   color: "#7a5ca8"
+    // },
+  ];
+
+  function hexToRgb(hex) {
+    hex = hex.replace('#', '');
+    if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+    const num = parseInt(hex, 16);
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+  }
+
+  function softColor(hex, amount = 0.85) {
+    const { r, g, b } = hexToRgb(hex);
+    const mix = c => Math.round(c + (255 - c) * amount);
+    return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function buildLegend(projects) {
+    return projects.map(p => `
+      <span class="legend-item">
+        <span class="swatch" style="background:${p.color}"></span>${escapeHtml(p.legend)}
+      </span>
+    `).join('');
+  }
+
+  function buildCards(projects) {
+    return projects.map(p => `
+      <a class="chart-card" style="--c:${p.color}; --c-soft:${softColor(p.color)}" href="${p.href}">
+        <span class="card-tag">${escapeHtml(p.tag)}</span>
+        <h2>${escapeHtml(p.name)}</h2>
+        <p>${escapeHtml(p.description)}</p>
+        <span class="visit">Visit <span class="arrow">→</span></span>
+      </a>
+    `).join('');
+  }
+
+  // Arranges one "chart" circle per project around a shared center,
+  // each with its own faint coordinate grid, echoing the idea that
+  // every project is a differently-labeled patch of the same atlas.
+  function buildDiagram(projects, size = 200) {
+    const n = projects.length;
+    if (n === 0) return '';
+
+    const cx = size / 2, cy = size / 2;
+    const Rc = n === 1 ? 0 : Math.min(50, 20 + n * 8);
+    const r = Math.max(40, 68 - n * 4);
+
+    let defs = '', grids = '', circles = '', labels = '';
+    const subDigits = ['₁','₂','₃','₄','₅','₆','₇','₈','₉'];
+
+    projects.forEach((p, i) => {
+      const angle = (-90 + i * (360 / n)) * Math.PI / 180;
+      const px = cx + Rc * Math.cos(angle);
+      const py = cy + Rc * Math.sin(angle);
+      const clipId = `clip-${p.id}`;
+      const rot = 8 * i;
+
+      let lines = '';
+      for (let g = 20; g < size; g += 20) {
+        lines += `<line x1="0" y1="${g}" x2="${size}" y2="${g}" transform="rotate(${rot} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
+        lines += `<line x1="${g}" y1="0" x2="${g}" y2="${size}" transform="rotate(${rot} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
+      }
+
+      defs += `<clipPath id="${clipId}"><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}"/></clipPath>`;
+      grids += `<g clip-path="url(#${clipId})" opacity="0.45"><g stroke="${p.color}" stroke-width="0.6">${lines}</g></g>`;
+      circles += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}" fill="none" stroke="${p.color}" stroke-width="1.3"/>`;
+
+      const lx = cx + (Rc + r * 0.55) * Math.cos(angle);
+      const ly = cy + (Rc + r * 0.55) * Math.sin(angle);
+      const sub = subDigits[i] || (i + 1);
+      labels += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="${p.color}" text-anchor="middle">U${sub}</text>`;
+    });
+
+    return `
+      <svg class="chart-diagram" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="One coordinate chart per project">
+        <defs>${defs}</defs>
+        ${grids}
+        ${circles}
+        ${labels}
+      </svg>
+    `;
+  }
+
+  function render() {
+    const cardsEl = document.getElementById('cards-grid');
+    const legendEl = document.getElementById('legend-items');
+    const diagramEl = document.getElementById('atlas-diagram');
+
+    if (!PROJECTS.length) {
+      cardsEl.innerHTML = `<div class="empty-hint">No charts yet — add a project to the PROJECTS array.</div>`;
+      legendEl.innerHTML = '';
+      diagramEl.innerHTML = '';
+      return;
+    }
+
+    legendEl.innerHTML = buildLegend(PROJECTS);
+    cardsEl.innerHTML = buildCards(PROJECTS);
+    diagramEl.innerHTML = buildDiagram(PROJECTS);
+  }
+
+  render();
+</script>
 </body>
 </html>
