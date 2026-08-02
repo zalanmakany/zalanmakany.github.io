@@ -15,9 +15,9 @@
     --border: #dbe0da;
     --pine: #46685f;
   }
- 
+
   * { box-sizing: border-box; }
- 
+
   body {
     margin: 0;
     background: var(--paper);
@@ -25,13 +25,13 @@
     font-family: 'Inter', -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
- 
+
   .wrap {
     max-width: 920px;
     margin: 0 auto;
     padding: 4.5rem 1.5rem 3rem;
   }
- 
+
   .kicker {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.78rem;
@@ -51,7 +51,7 @@
     background: var(--pine);
     display: inline-block;
   }
- 
+
   .hero {
     display: flex;
     justify-content: space-between;
@@ -59,7 +59,7 @@
     gap: 2rem;
     margin-bottom: 3.5rem;
   }
- 
+
   .hero h1 {
     font-family: 'Fraunces', serif;
     font-weight: 600;
@@ -67,7 +67,7 @@
     line-height: 1;
     margin: 0 0 0.9rem;
   }
- 
+
   .hero p {
     max-width: 34ch;
     color: var(--muted);
@@ -75,14 +75,14 @@
     line-height: 1.55;
     margin: 0;
   }
- 
+
   .chart-diagram {
     flex-shrink: 0;
     width: 190px;
     height: 190px;
     opacity: 0.92;
   }
- 
+
   .legend {
     display: flex;
     flex-wrap: wrap;
@@ -114,13 +114,13 @@
     border-radius: 3px;
     display: inline-block;
   }
- 
+
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.4rem;
   }
- 
+
   .chart-card {
     position: relative;
     background: #fff;
@@ -141,12 +141,12 @@
     height: 4px;
     background: var(--c, var(--pine));
   }
- 
+
   .chart-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 24px rgba(31,36,33,0.08);
   }
- 
+
   .card-tag {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.7rem;
@@ -159,21 +159,21 @@
     background: var(--c-soft, #eee);
     color: var(--c, var(--ink));
   }
- 
+
   .chart-card h2 {
     font-family: 'Fraunces', serif;
     font-weight: 600;
     font-size: 1.5rem;
     margin: 0 0 0.5rem;
   }
- 
+
   .chart-card p {
     color: var(--muted);
     font-size: 0.94rem;
     line-height: 1.5;
     margin: 0 0 1.1rem;
   }
- 
+
   .visit {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.82rem;
@@ -182,10 +182,10 @@
     gap: 0.3rem;
     color: var(--c, var(--pine));
   }
- 
+
   .visit .arrow { transition: transform 0.18s ease; }
   .chart-card:hover .visit .arrow { transform: translateX(3px); }
- 
+
   footer {
     margin-top: 3.5rem;
     padding-top: 1.4rem;
@@ -198,7 +198,7 @@
     flex-wrap: wrap;
     gap: 0.5rem;
   }
- 
+
   .empty-hint {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.85rem;
@@ -208,7 +208,7 @@
     border: 1px dashed var(--border);
     border-radius: 12px;
   }
- 
+
   .notes-section {
     margin-top: 3.2rem;
   }
@@ -266,12 +266,33 @@
     font-size: 0.76rem;
     color: var(--pine);
   }
- 
+
   @media (max-width: 640px) {
-    .hero { flex-direction: column; }
-    .chart-diagram { width: 130px; height: 130px; align-self: flex-end; }
+    .wrap { padding: 2.2rem 1.25rem 2.5rem; }
+    .hero {
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .hero > div:first-child { flex: 1; min-width: 0; }
+    .hero p { font-size: 0.92rem; }
+    .chart-diagram {
+      width: 84px;
+      height: 84px;
+      margin-top: 0.3rem;
+    }
+    .legend {
+      gap: 0.9rem 1.1rem;
+      padding: 0.7rem 1rem;
+      margin-bottom: 1.6rem;
+    }
+    .legend-item { font-size: 0.82rem; }
   }
- 
+
+  @media (max-width: 340px) {
+    .chart-diagram { width: 68px; height: 68px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .chart-card, .visit .arrow { transition: none; }
   }
@@ -279,9 +300,9 @@
 </head>
 <body>
 <div class="wrap">
- 
+
   <div class="kicker">zalan.nl</div>
- 
+
   <div class="hero">
     <div>
       <h1>Atlas</h1>
@@ -289,34 +310,34 @@
     </div>
     <div id="atlas-diagram"></div>
   </div>
- 
+
   <div class="legend">
     <span class="eyebrow">Legend</span>
     <span id="legend-items"></span>
   </div>
- 
+
   <div class="grid" id="cards-grid"></div>
- 
+
   <div class="notes-section">
     <span class="eyebrow">Notes</span>
     <p class="notes-subtitle">Smaller explorations, coursework, and things that didn't fully land — kept here rather than given a full chart.</p>
     <div class="notes-list" id="notes-list"></div>
   </div>
- 
+
   <footer>
     <span>Zalan - built &amp; maintained by hand</span>
     <span>updated July 2026</span>
   </footer>
- 
+
 </div>
- 
+
 <script>
   /* ============================================================
      PROJECTS
      To add a new project, add one object to this array. That's it —
      the legend, the cards, and the chart diagram above all
      regenerate from this list automatically.
- 
+
      id:          short unique slug, used internally (e.g. for SVG ids)
      name:        display name of the project
      tag:         small eyebrow label, e.g. "personal · notes"
@@ -350,10 +371,10 @@
       tag: "university · econometrics",
       legend: "coursework",
       description: "A group project mapping a \"Volatility Spectrum\" — how heavy tails, skewness, volatility clustering, and the leverage effect show up differently across physically-constrained and asset-light sectors.",
-      href: "https://zalan.nl/files/ifas-stylized-facts.pdf",
+      href: "https://zalan.nl/ifas-stylized-facts",
       color: "#3b6e58"
     }
- 
+
     // Next project goes here, e.g.:
     // {
     //   id: "circle-packing",
@@ -365,13 +386,13 @@
     //   color: "#7a5ca8"
     // },
   ];
- 
+
   /* ============================================================
      NOTES
      Smaller, lighter-weight entries — coursework, explorations,
      dead ends, negative results. No color, no big card, no
      "Visit" cta unless there's actually somewhere to send someone.
- 
+
      title:       short title
      tag:         short label, e.g. "coursework", "open problem"
      description: one or two sentences — what it was, what you found
@@ -384,7 +405,7 @@
       description: "Plotted how long it takes players to reach a sustained peak rating against how high that peak actually is — a visible positive relationship (higher peaks, more spread and generally longer climbs), but never turned into a full write-up.",
       href: ""
     }
- 
+
     // Next note goes here, e.g.:
     // {
     //   title: "Attempted a closed form for X, didn't get there",
@@ -393,20 +414,20 @@
     //   href: "https://zalan.nl/notes/some-writeup"
     // },
   ];
- 
+
   function hexToRgb(hex) {
     hex = hex.replace('#', '');
     if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
     const num = parseInt(hex, 16);
-    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+    return { r: (num >> 16) & 255, g: (num >> 😎 & 255, b: num & 255 };
   }
- 
+
   function softColor(hex, amount = 0.85) {
     const { r, g, b } = hexToRgb(hex);
     const mix = c => Math.round(c + (255 - c) * amount);
-    return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+    return rgb(${mix(r)}, ${mix(g)}, ${mix(b)});
   }
- 
+
   // Averages every project's color with equal weight, then mixes the
   // result heavily toward white so the page background stays a pale,
   // muted tint rather than a saturated blend. The palette's "center
@@ -421,15 +442,15 @@
     const n = hexColors.length;
     const avg = { r: totals.r / n, g: totals.g / n, b: totals.b / n };
     const mix = c => Math.round(c + (255 - c) * lightenAmount);
-    return `rgb(${mix(avg.r)}, ${mix(avg.g)}, ${mix(avg.b)})`;
+    return rgb(${mix(avg.r)}, ${mix(avg.g)}, ${mix(avg.b)});
   }
- 
+
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str || '';
     return div.innerHTML;
   }
- 
+
   function buildLegend(projects) {
     return projects.map(p => `
       <span class="legend-item">
@@ -437,7 +458,7 @@
       </span>
     `).join('');
   }
- 
+
   function buildCards(projects) {
     return projects.map(p => `
       <a class="chart-card" style="--c:${p.color}; --c-soft:${softColor(p.color)}" href="${p.href}">
@@ -448,44 +469,44 @@
       </a>
     `).join('');
   }
- 
+
   // Arranges one "chart" circle per project around a shared center,
   // each with its own faint coordinate grid, echoing the idea that
   // every project is a differently-labeled patch of the same atlas.
   function buildDiagram(projects, size = 200) {
     const n = projects.length;
     if (n === 0) return '';
- 
+
     const cx = size / 2, cy = size / 2;
     const Rc = n === 1 ? 0 : Math.min(50, 20 + n * 8);
     const r = Math.max(40, 68 - n * 4);
- 
+
     let defs = '', grids = '', circles = '', labels = '';
     const subDigits = ['₁','₂','₃','₄','₅','₆','₇','₈','₉'];
- 
+
     projects.forEach((p, i) => {
       const angle = (-90 + i * (360 / n)) * Math.PI / 180;
       const px = cx + Rc * Math.cos(angle);
       const py = cy + Rc * Math.sin(angle);
-      const clipId = `clip-${p.id}`;
+      const clipId = clip-${p.id};
       const rot = 8 * i;
- 
+
       let lines = '';
       for (let g = 20; g < size; g += 20) {
-        lines += `<line x1="0" y1="${g}" x2="${size}" y2="${g}" transform="rotate(${rot} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
-        lines += `<line x1="${g}" y1="0" x2="${g}" y2="${size}" transform="rotate(${rot} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
+        lines += <line x1="0" y1="${g}" x2="${size}" y2="${g}" transform="rotate(${rot} ${px.toFixed(1)} ${py.toFixed(1)})"/>;
+        lines += <line x1="${g}" y1="0" x2="${g}" y2="${size}" transform="rotate(${rot} ${px.toFixed(1)} ${py.toFixed(1)})"/>;
       }
- 
-      defs += `<clipPath id="${clipId}"><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}"/></clipPath>`;
-      grids += `<g clip-path="url(#${clipId})" opacity="0.45"><g stroke="${p.color}" stroke-width="0.6">${lines}</g></g>`;
-      circles += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}" fill="none" stroke="${p.color}" stroke-width="1.3"/>`;
- 
+
+      defs += <clipPath id="${clipId}"><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}"/></clipPath>;
+      grids += <g clip-path="url(#${clipId})" opacity="0.45"><g stroke="${p.color}" stroke-width="0.6">${lines}</g></g>;
+      circles += <circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}" fill="none" stroke="${p.color}" stroke-width="1.3"/>;
+
       const lx = cx + (Rc + r * 0.55) * Math.cos(angle);
       const ly = cy + (Rc + r * 0.55) * Math.sin(angle);
       const sub = subDigits[i] || (i + 1);
-      labels += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="${p.color}" text-anchor="middle">U${sub}</text>`;
+      labels += <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="${p.color}" text-anchor="middle">U${sub}</text>;
     });
- 
+
     return `
       <svg class="chart-diagram" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="One coordinate chart per project">
         <defs>${defs}</defs>
@@ -495,14 +516,14 @@
       </svg>
     `;
   }
- 
+
   function buildNotes(notes) {
     if (!notes.length) {
-      return `<div class="empty-hint">No notes yet.</div>`;
+      return <div class="empty-hint">No notes yet.</div>;
     }
     return notes.map(note => {
-      const tag = note.tag ? `<span class="note-tag">${escapeHtml(note.tag)}</span>` : '';
-      const link = note.href ? `<span class="note-link">More →</span>` : '';
+      const tag = note.tag ? <span class="note-tag">${escapeHtml(note.tag)}</span> : '';
+      const link = note.href ? <span class="note-link">More →</span> : '';
       const inner = `
         <div class="note-head">
           <span class="note-title">${escapeHtml(note.title)}</span>
@@ -512,46 +533,41 @@
         ${link}
       `;
       return note.href
-        ? `<a class="note-row" href="${note.href}">${inner}</a>`
-        : `<div class="note-row">${inner}</div>`;
+        ? <a class="note-row" href="${note.href}">${inner}</a>
+        : <div class="note-row">${inner}</div>;
     }).join('');
   }
- 
+
   function render() {
     const cardsEl = document.getElementById('cards-grid');
     const legendEl = document.getElementById('legend-items');
     const diagramEl = document.getElementById('atlas-diagram');
- 
+
     if (!PROJECTS.length) {
-      cardsEl.innerHTML = `<div class="empty-hint">No charts yet — add a project to the PROJECTS array.</div>`;
+      cardsEl.innerHTML = <div class="empty-hint">No charts yet — add a project to the PROJECTS array.</div>;
       legendEl.innerHTML = '';
       diagramEl.innerHTML = '';
       return;
     }
 
+    // Keep adding new projects to the end of PROJECTS — this just
+    // flips the display order so the newest one shows up first.
     const displayOrder = [...PROJECTS].reverse();
- 
+
     legendEl.innerHTML = buildLegend(displayOrder);
     cardsEl.innerHTML = buildCards(displayOrder);
     diagramEl.innerHTML = buildDiagram(displayOrder);
- 
+
     const paper = averagePaperColor(PROJECTS.map(p => p.color));
     if (paper) document.documentElement.style.setProperty('--paper', paper);
- 
+
+    // Notes have no color and don't factor into the averaged
+    // background — they're marginalia, not coordinate patches.
     const notesEl = document.getElementById('notes-list');
     notesEl.innerHTML = buildNotes([...NOTES].reverse());
   }
- 
+
   render();
 </script>
 </body>
 </html>
- 
-
-
-
-
-
-
-
-
