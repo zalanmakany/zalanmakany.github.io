@@ -419,13 +419,13 @@
     hex = hex.replace('#', '');
     if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
     const num = parseInt(hex, 16);
-    return { r: (num >> 16) & 255, g: (num >> 😎 & 255, b: num & 255 };
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
   }
 
   function softColor(hex, amount = 0.85) {
     const { r, g, b } = hexToRgb(hex);
     const mix = c => Math.round(c + (255 - c) * amount);
-    return rgb(${mix(r)}, ${mix(g)}, ${mix(b)});
+    return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
   }
 
   // Averages every project's color with equal weight, then mixes the
@@ -442,7 +442,7 @@
     const n = hexColors.length;
     const avg = { r: totals.r / n, g: totals.g / n, b: totals.b / n };
     const mix = c => Math.round(c + (255 - c) * lightenAmount);
-    return rgb(${mix(avg.r)}, ${mix(avg.g)}, ${mix(avg.b)});
+    return `rgb(${mix(avg.r)}, ${mix(avg.g)}, ${mix(avg.b)})`;
   }
 
   function escapeHtml(str) {
@@ -488,23 +488,23 @@
       const angle = (-90 + i * (360 / n)) * Math.PI / 180;
       const px = cx + Rc * Math.cos(angle);
       const py = cy + Rc * Math.sin(angle);
-      const clipId = clip-${p.id};
+      const clipId = `clip-${p.id}`;
       const rot = 8 * i;
 
       let lines = '';
       for (let g = 20; g < size; g += 20) {
-        lines += <line x1="0" y1="${g}" x2="${size}" y2="${g}" transform="rotate(${rot} ${px.toFixed(1)} ${py.toFixed(1)})"/>;
-        lines += <line x1="${g}" y1="0" x2="${g}" y2="${size}" transform="rotate(${rot} ${px.toFixed(1)} ${py.toFixed(1)})"/>;
+        lines += `<line x1="0" y1="${g}" x2="${size}" y2="${g}" transform="rotate(${rot} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
+        lines += `<line x1="${g}" y1="0" x2="${g}" y2="${size}" transform="rotate(${rot} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
       }
 
-      defs += <clipPath id="${clipId}"><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}"/></clipPath>;
-      grids += <g clip-path="url(#${clipId})" opacity="0.45"><g stroke="${p.color}" stroke-width="0.6">${lines}</g></g>;
-      circles += <circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}" fill="none" stroke="${p.color}" stroke-width="1.3"/>;
+      defs += `<clipPath id="${clipId}"><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}"/></clipPath>`;
+      grids += `<g clip-path="url(#${clipId})" opacity="0.45"><g stroke="${p.color}" stroke-width="0.6">${lines}</g></g>`;
+      circles += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}" fill="none" stroke="${p.color}" stroke-width="1.3"/>`;
 
       const lx = cx + (Rc + r * 0.55) * Math.cos(angle);
       const ly = cy + (Rc + r * 0.55) * Math.sin(angle);
       const sub = subDigits[i] || (i + 1);
-      labels += <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="${p.color}" text-anchor="middle">U${sub}</text>;
+      labels += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="${p.color}" text-anchor="middle">U${sub}</text>`;
     });
 
     return `
@@ -519,11 +519,11 @@
 
   function buildNotes(notes) {
     if (!notes.length) {
-      return <div class="empty-hint">No notes yet.</div>;
+      return `<div class="empty-hint">No notes yet.</div>`;
     }
     return notes.map(note => {
-      const tag = note.tag ? <span class="note-tag">${escapeHtml(note.tag)}</span> : '';
-      const link = note.href ? <span class="note-link">More →</span> : '';
+      const tag = note.tag ? `<span class="note-tag">${escapeHtml(note.tag)}</span>` : '';
+      const link = note.href ? `<span class="note-link">More →</span>` : '';
       const inner = `
         <div class="note-head">
           <span class="note-title">${escapeHtml(note.title)}</span>
@@ -533,8 +533,8 @@
         ${link}
       `;
       return note.href
-        ? <a class="note-row" href="${note.href}">${inner}</a>
-        : <div class="note-row">${inner}</div>;
+        ? `<a class="note-row" href="${note.href}">${inner}</a>`
+        : `<div class="note-row">${inner}</div>`;
     }).join('');
   }
 
@@ -544,7 +544,7 @@
     const diagramEl = document.getElementById('atlas-diagram');
 
     if (!PROJECTS.length) {
-      cardsEl.innerHTML = <div class="empty-hint">No charts yet — add a project to the PROJECTS array.</div>;
+      cardsEl.innerHTML = `<div class="empty-hint">No charts yet — add a project to the PROJECTS array.</div>`;
       legendEl.innerHTML = '';
       diagramEl.innerHTML = '';
       return;
