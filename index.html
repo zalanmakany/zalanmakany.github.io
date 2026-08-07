@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Atlas - Zalan</title>
+<title>Atlas — Zalan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -347,23 +347,23 @@
      color:       hex color — pull this from the subpage's own accent
      ============================================================ */
   const PROJECTS = [
-    {
+       {
       id: "ifas-stylized-facts",
       name: "Stylized Facts of Asset Returns",
       tag: "university · econometrics",
       legend: "coursework",
-      description: "A group project mapping a Volatility Spectrum looking at how heavy tails, skewness, volatility clustering, and the leverage effect show up differently across physically-constrained and asset-light sectors.",
-      href: "https://zalan.nl/files/IFAS_Project.pdf",
+      description: "A group project mapping a \"Volatility Spectrum\" — how heavy tails, skewness, volatility clustering, and the leverage effect show up differently across physically-constrained and asset-light sectors.",
+      href: "https://zalan.nl/ifas-stylized-facts",
       color: "#3b6e58"
     },
     {
-      id: "ai-coach",
-      name: "AI Coach",
-      tag: "prototype · coaching",
-      legend: "tools & prototypes",
-      description: "A conversational assistant that asks targeted questions to turn a vague ambition into an actionable goal.",
-      href: "https://zalan.nl/ai-coach",
-      color: "#3498db"
+      id: "wage-gap-malaysia",
+      name: "The Great Equalizer",
+      tag: "university · econometrics",
+      legend: "coursework",
+      description: "An econometrics project on Malaysian wage data — building from a simple age/schooling model up to a fuller specification with interaction terms, landing on a striking result: secondary education actively closes wage gaps by gender and ethnicity, while primary schooling mostly just preserves them.",
+      href: "https://zalan.nl/wage-gap-malaysia",
+      color: "#3b6e58"
     },
     {
       id: "reading-list",
@@ -373,8 +373,18 @@
       description: "Books I'm reading, have read, and want to read, with progress bars, ratings, and notes as I go.",
       href: "https://zalan.nl/reading-list",
       color: "#a15c38"
+    },
+    {
+      id: "ai-coach",
+      name: "AI Coach",
+      tag: "prototype · coaching",
+      legend: "tools & prototypes",
+      description: "A conversational assistant that asks targeted questions to turn a vague ambition into an actionable goal.",
+      href: "https://zalan.nl/ai-coach",
+      color: "#3498db"
     }
  
+
     // Next project goes here, e.g.:
     // {
     //   id: "circle-packing",
@@ -383,7 +393,7 @@
     //   legend: "open problems",
     //   description: "An interactive look at hexagonal circle packing in equilateral triangles.",
     //   href: "https://zalan.nl/circle-packing",
-    //   color: "#7a5ca8"
+    //   color: "#c9a44c"
     // },
   ];
 
@@ -402,7 +412,7 @@
     {
       title: "Go rating growth curves",
       tag: "exploration",
-      description: "Plotted how long it takes players to reach a sustained peak rating against how high that peak actually is a visible positive relationship (higher peaks, more spread and generally longer climbs), but never turned into a full write-up.",
+      description: "Plotted how long it takes players to reach a sustained peak rating against how high that peak actually is — a visible positive relationship (higher peaks, more spread and generally longer climbs), but never turned into a full write-up.",
       href: ""
     }
 
@@ -452,9 +462,15 @@
   }
 
   function buildLegend(projects) {
-    return projects.map(p => `
+    // Multiple projects can share a category (same color + label) —
+    // collapse those into a single swatch rather than repeating it.
+    const seen = new Map();
+    projects.forEach(p => {
+      if (!seen.has(p.legend)) seen.set(p.legend, p.color);
+    });
+    return Array.from(seen.entries()).map(([legend, color]) => `
       <span class="legend-item">
-        <span class="swatch" style="background:${p.color}"></span>${escapeHtml(p.legend)}
+        <span class="swatch" style="background:${color}"></span>${escapeHtml(legend)}
       </span>
     `).join('');
   }
