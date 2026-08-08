@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Prototype</title>
+    <title>AI Volleyball Coach</title>
     <style>
         :root {
-            --primary: #2c3e50;
-            --secondary: #34495e;
-            --user-msg: #3498db;
+            --primary: #1b3a5c;
+            --secondary: #2a5580;
+            --user-msg: #e67e22;
             --bot-msg: #f1f2f6;
-            --bg: #eaeff2;
+            --bg: #eaf1f5;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -128,26 +128,26 @@
 
 <div class="container">
     <header>
-        <h1>AI Prototype</h1>
-        <p>Personal Development Plan assistant</p>
+        <h1>AI Volleyball Coach</h1>
+        <p>Your personal assistant</p>
     </header>
 
     <div class="chat-box">
         <div class="chat-history" id="chat-history">
             <div class="message bot">
-                Hi! I'm your AI Coach. What is a goal you have for your journey that we can refine together?
+                Hey! I'm your volleyball coach. What's one thing about your game you'd like to get better at?
             </div>
         </div>
         
         <div class="input-area">
-            <input type="text" id="user-input" placeholder="e.g., I want to be a better networker..." onkeypress="handleKeyPress(event)">
+            <input type="text" id="user-input" placeholder="e.g., I want a better jump serve..." onkeypress="handleKeyPress(event)">
             <button onclick="sendMessage()">Send</button>
         </div>
     </div>
 
     <div class="methodology">
         <h2>The Idea</h2>
-        <p>Often we have great ambitions, but struggle when it comes to actually acting on our goals. The aim of this assistant is to ask targeted questions, facilitating student self-reflection and helping refine broad ideas into actionable, SMART-formulated goals for their Personal Development.</p>
+        <p>It's easy to say "I want to get better at volleyball," but much harder to turn that into a plan you'll actually follow through on. This assistant asks targeted questions to help you turn a broad ambition ~ a stronger spike, more consistent passing, better court awareness ~ into concrete training goals.</p>
     </div>
 </div>
 
@@ -180,7 +180,7 @@
             conversationHistory.push({ role: "assistant", content: data.reply });
         })
         .catch(error => {
-            updateMessageInChat(loadingId, "Sorry, the AI coach is currently taking a break. Please try again later!");
+            updateMessageInChat(loadingId, "Sorry, the coach is currently taking a break. Please try again later!");
             console.error("Error:", error);
         });
     }
