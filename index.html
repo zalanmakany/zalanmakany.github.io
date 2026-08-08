@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Atlas — Zalan</title>
+<title>Atlas ~ Zalan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -320,7 +320,7 @@
 
   <div class="notes-section">
     <span class="eyebrow">Notes</span>
-    <p class="notes-subtitle">Smaller explorations, coursework, and things that didn't fully land — kept here rather than given a full chart.</p>
+    <p class="notes-subtitle">Smaller explorations, coursework, and things that didn't fully land, kept here rather than given a full chart.</p>
     <div class="notes-list" id="notes-list"></div>
   </div>
 
@@ -334,7 +334,7 @@
 <script>
   /* ============================================================
      PROJECTS
-     To add a new project, add one object to this array. That's it —
+     To add a new project, add one object to this array. That's it
      the legend, the cards, and the chart diagram above all
      regenerate from this list automatically.
 
@@ -344,7 +344,7 @@
      legend:      short phrase shown in the legend, e.g. "reading & reflection"
      description: one or two sentences shown on the card
      href:        link to the live subpage
-     color:       hex color — pull this from the subpage's own accent
+     color:       hex color pull this from the subpage's own accent
      ============================================================ */
   const PROJECTS = [
        {
@@ -352,7 +352,7 @@
       name: "Stylized Facts of Asset Returns",
       tag: "university · econometrics",
       legend: "coursework",
-      description: "A group project mapping a \"Volatility Spectrum\" — how heavy tails, skewness, volatility clustering, and the leverage effect show up differently across physically-constrained and asset-light sectors.",
+      description: "A group project mapping a \"Volatility Spectrum\" , how heavy tails, skewness, volatility clustering, and the leverage effect show up differently across physically-constrained and asset-light sectors.",
       href: "https://zalan.nl/files/IFAS_Project.pdf",
       color: "#3b6e58"
     },
@@ -361,7 +361,7 @@
       name: "The Great Equalizer",
       tag: "university · econometrics",
       legend: "coursework",
-      description: "An econometrics project on Malaysian wage data — building from a simple age/schooling model up to a fuller specification with interaction terms, landing on a striking result: secondary education actively closes wage gaps by gender and ethnicity, while primary schooling mostly just preserves them.",
+      description: "An econometrics project on Malaysian wage data, building from a simple age/schooling model up to a fuller specification with interaction terms, landing on a striking result: secondary education actively closes wage gaps by gender and ethnicity, while primary schooling mostly just preserves them.",
       href: "https://zalan.nl/files/intro_econometrics.pdf",
       color: "#3b6e58"
     },
@@ -399,20 +399,20 @@
 
   /* ============================================================
      NOTES
-     Smaller, lighter-weight entries — coursework, explorations,
+     Smaller, lighter-weight entries coursework, explorations,
      dead ends, negative results. No color, no big card, no
      "Visit" cta unless there's actually somewhere to send someone.
 
      title:       short title
      tag:         short label, e.g. "coursework", "open problem"
-     description: one or two sentences — what it was, what you found
-     href:        optional — a write-up, repo, or PDF, if one exists
+     description: one or two sentences what it was, what you found
+     href:        optional a write-up, repo, or PDF, if one exists
      ============================================================ */
   const NOTES = [
     {
       title: "Go rating growth curves",
       tag: "exploration",
-      description: "Plotted how long it takes players to reach a sustained peak rating against how high that peak actually is — a visible positive relationship (higher peaks, more spread and generally longer climbs), but never turned into a full write-up.",
+      description: "Plotted how long it takes players to reach a sustained peak rating against how high that peak actually is, a visible positive relationship (higher peaks, more spread and generally longer climbs), but never turned into a full write-up.",
       href: ""
     }
 
@@ -441,7 +441,7 @@
   // Averages every project's color with equal weight, then mixes the
   // result heavily toward white so the page background stays a pale,
   // muted tint rather than a saturated blend. The palette's "center
-  // of mass" — the more projects, the more it drifts to reflect them.
+  // of mass"  the more projects, the more it drifts to reflect them.
   function averagePaperColor(hexColors, lightenAmount = 0.86) {
     if (!hexColors.length) return null;
     const totals = hexColors.reduce((acc, hex) => {
@@ -462,7 +462,7 @@
   }
 
   function buildLegend(projects) {
-    // Multiple projects can share a category (same color + label) —
+    // Multiple projects can share a category (same color + label) 
     // collapse those into a single swatch rather than repeating it.
     const seen = new Map();
     projects.forEach(p => {
@@ -560,13 +560,13 @@
     const diagramEl = document.getElementById('atlas-diagram');
 
     if (!PROJECTS.length) {
-      cardsEl.innerHTML = `<div class="empty-hint">No charts yet — add a project to the PROJECTS array.</div>`;
+      cardsEl.innerHTML = `<div class="empty-hint">No charts yet add a project to the PROJECTS array.</div>`;
       legendEl.innerHTML = '';
       diagramEl.innerHTML = '';
       return;
     }
 
-    // Keep adding new projects to the end of PROJECTS — this just
+    // Keep adding new projects to the end of PROJECTS this just
     // flips the display order so the newest one shows up first.
     const displayOrder = [...PROJECTS].reverse();
 
@@ -578,7 +578,7 @@
     if (paper) document.documentElement.style.setProperty('--paper', paper);
 
     // Notes have no color and don't factor into the averaged
-    // background — they're marginalia, not coordinate patches.
+    // background they're marginalia, not coordinate patches.
     const notesEl = document.getElementById('notes-list');
     notesEl.innerHTML = buildNotes([...NOTES].reverse());
   }
