@@ -146,9 +146,11 @@
     text-decoration: none;
     color: inherit;
     display: block;
-    overflow: hidden;
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    /* Added z-index to create a stacking context for the glow */
+    z-index: 1;
+    transition: transform 0.2s ease, border-color 0.2s ease;
   }
+  
   .chart-card::before {
     content: "";
     position: absolute;
@@ -158,9 +160,26 @@
     background: var(--c, var(--pine));
   }
 
+  /* The new atmospheric edge glow */
+  .chart-card::after {
+    content: "";
+    position: absolute;
+    inset: -2px;          /* Pulls the glow just outside the card edges */
+    border-radius: 16px;  /* Slightly larger than the card */
+    background: linear-gradient(135deg, var(--c), var(--c2, var(--c)));
+    filter: blur(12px);   /* Softens the edge like a planetary atmosphere */
+    z-index: -1;          /* Tucks it safely behind the white card background */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
   .chart-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 24px rgba(31,36,33,0.08);
+    border-color: transparent; /* Hiding the border lets the glow pop more */
+  }
+
+  .chart-card:hover::after {
+    opacity: 0.35; /* Activates the rim light on hover */
   }
 
   .card-tag {
@@ -407,7 +426,8 @@
       legend: "creative & visual",
       description: "A cinematic, zero-gravity WebGL scene inspired by Project Hail Mary, featuring skeletal animation, dynamic lighting, and scroll-triggered transitions.",
       href: "https://zalan.nl/petrova",
-      color: "#13a152"
+      color: "#13a152",      // Petrova Green
+      color2: "#FF0033"      // Astrophage Red
     },
 
     {
@@ -523,7 +543,7 @@ function buildLegend(projects) {
 
   function buildCards(projects) {
     return projects.map(p => `
-      <a class="chart-card" style="--c:${p.color}; --c-soft:${softColor(p.color)}" href="${p.href}">
+      <a class="chart-card" style="--c:${p.color}; --c2:${p.color2 || p.color}; --c-soft:${softColor(p.color)}" href="${p.href}">
         <span class="card-tag">${escapeHtml(p.tag)}</span>
         <h2>${escapeHtml(p.name)}</h2>
         <p>${escapeHtml(p.description)}</p>
