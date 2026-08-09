@@ -156,7 +156,7 @@
     top: 0; left: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(to right, var(--c), var(--c2, var(--c)));
+    background: linear-gradient(to right, var(--c) 50%, var(--c2, var(--c)) 50%);  
   }
 
   .chart-card:hover {
@@ -171,7 +171,7 @@
     top: 2px; left: 4%; 
     width: 92%;         /* Slightly narrower than the card for a natural falloff */
     height: 6px;
-    background: linear-gradient(to right, var(--c), var(--c2, var(--c)));
+    background: linear-gradient(to right, var(--c) 50%, var(--c2, var(--c)) 50%);
     filter: blur(10px);
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -521,7 +521,7 @@ function buildLegend(projects) {
     
     projects.forEach(p => {
       // If color2 exists, make it a gradient. Otherwise, keep it solid.
-      const bg = p.color2 ? `linear-gradient(135deg, ${p.color}, ${p.color2})` : p.color;
+      const bg = p.color2 ? `linear-gradient(135deg, ${p.color} 50%, ${p.color2} 50%)` : p.color;
       
       if (!categoryColors.has(p.legend)) {
         categoryColors.set(p.legend, new Set([bg])); 
@@ -587,8 +587,8 @@ function buildLegend(projects) {
       defs += `
         <clipPath id="${clipId}"><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}"/></clipPath>
         <linearGradient id="${gradId}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${size}" y2="${size}">
-          <stop offset="0%" stop-color="${p.color}" />
-          <stop offset="100%" stop-color="${p.color2 || p.color}" />
+          <stop offset="50%" stop-color="${p.color}" />
+          <stop offset="50%" stop-color="${p.color2 || p.color}" />
         </linearGradient>
       `;
       
