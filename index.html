@@ -156,28 +156,26 @@
     top: 0; left: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(to right, var(--c) 50%, var(--c2, var(--c)) 50%);  
+    background: linear-gradient(to right in oklab, var(--c), var(--c2, var(--c)));
   }
 
-  .chart-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 24px rgba(31,36,33,0.08);
-  }
-
-  /* The atmospheric glow, restricted entirely to the top rim */
   .chart-card::after {
     content: "";
     position: absolute;
     top: 2px; left: 4%; 
-    width: 92%;         /* Slightly narrower than the card for a natural falloff */
+    width: 92%;
     height: 6px;
-    background: linear-gradient(to right, var(--c) 50%, var(--c2, var(--c)) 50%);
+    background: linear-gradient(to right in oklab, var(--c), var(--c2, var(--c)));
     filter: blur(10px);
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: 1;
   }
 
+  .chart-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(31,36,33,0.08);
+  }
   .chart-card:hover::after {
     opacity: 0.65; /* Activates the rim glow on hover */
   }
@@ -428,16 +426,6 @@
       href: "https://zalan.nl/petrova",
       color: "#13a152",      // Petrova Green
       color2: "#FF0033"      // Astrophage Red
-    },
-
-    {
-      id: "test",
-      name: "test",
-      tag: "creative · 3D",
-      legend: "creative & visual",
-      description: "test",
-      href: "",
-      color: "#a15c38"
     }
 
     // Next project goes here, e.g.:
