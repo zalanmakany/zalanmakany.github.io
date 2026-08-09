@@ -127,26 +127,93 @@ function createStarfield() {
     scene.add(new THREE.Points(starGeo, starMat));
 }
 
-// ─── BACKGROUND PLANET (ADRIAN) ──────────────
 function createPlanet() {
     const geometry = new THREE.SphereGeometry(120, 64, 64);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x111a05,      // Dark greenish base
-        roughness: 0.8,
-        metalness: 0.1,
-        fog: false,
-        transparent: true
+    
+    // We replace MeshStandardMaterial with a custom ShaderMaterial
+    const material = new THREE.ShaderMaterial({
+        uniforms: {
+            uTime:    { value: 0 },
+            uOpacity: { value: 1.0 } // We'll animate this to fade the planet
+        },
+        vertexShader: `
+            varying vec2 vUv;
+            varying vec3 vPosition;
+            void main() {
+                vUv = uv;
+                vPosition = position;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform float uTime;
+            uniform float uOpacity;
+            varying vec2 vUv;
+            varying vec3 vPosition;
+
+            // Simplified 3D Value Noise
+            float hash(float n) { return fract(sin(n) * 1e4); }
+            float noise(vec3 x) {
+                const vec3 step = vec3(110, 241, 171);
+                vec3 i = floor(x);
+                vec3 f = fract(x);
+                float n = dot(i, step);
+                vec3 u = f * f * (3.0 - 2.0 * f);
+                return mix(mix(mix( hash(n + dot(step, vec3(0, 0, 0))), hash(n + dot(step, vec3(1, 0, 0))), u.x),
+                               mix( hash(n + dot(step, vec3(0, 1, 0))), hash(n + dot(step, vec3(1, 1, 0))), u.x), u.y),
+                           mix(mix( hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
+                               mix( hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
+            }
+
+            // Fractional Brownian Motion for fractal-like swirls
+            float fbm(vec3 x) {
+                float v = 0.0;
+                float a = 0.5;
+                vec3 shift = vec3(100.0);
+                for (int i = 0; i < 5; ++i) {
+                    v += a * noise(x);
+                    x = x * 2.0 + shift;
+                    a *= 0.5;
+                }
+                return v;
+            }
+
+            void main() {
+                // Scale coordinates for the noise
+                vec3 q = vPosition * 0.015;
+                
+                // Add slow rotation over time
+                q.x += uTime * 0.05;
+                q.y += uTime * 0.02;
+                
+                // Domain warping: feeding noise into noise for the swirly look
+                float n = fbm(q + fbm(q + vec3(uTime * 0.1)));
+                
+                // Define the Adrian color palette
+                vec3 deepGreen = vec3(0.01, 0.15, 0.02);
+                vec3 neonGreen = vec3(0.4, 0.9, 0.0);
+                vec3 toxicYellow = vec3(0.8, 0.7, 0.1);
+                
+                // Mix colors based on the noise value
+                vec3 color = mix(deepGreen, neonGreen, smoothstep(0.2, 0.7, n));
+                color = mix(color, toxicYellow, smoothstep(0.6, 1.0, n));
+                
+                // Add a vignette/shadow on the edges of the sphere to make it look 3D
+                float edgeShadow = dot(normalize(vPosition), vec3(0.0, 0.0, 1.0));
+                color *= smoothstep(-0.2, 0.8, edgeShadow);
+                
+                gl_FragColor = vec4(color, uOpacity);
+            }
+        `,
+        transparent: true,
+        depthWrite: false
     });
 
     planet = new THREE.Mesh(geometry, material);
     planet.position.set(-100, 30, -450); 
     scene.add(planet);
 
-    // Greenish-yellow crescent rim light
-    const planetLight = new THREE.DirectionalLight(0xb3ff00, 2.5); 
-    planetLight.position.set(-300, 100, -200); 
-    planetLight.target = planet;
-    scene.add(planetLight);
+    // We no longer need the planetLight since the shader generates its own color/shadow
 }
 
 // ─── ASTROPHAGE PARTICLE CLOUD ───────────────
@@ -300,9 +367,9 @@ function setupScrollTrigger() {
     tl.to(pointLight1, { intensity: CONFIG.lights.pointIntensity * 2.2, distance: CONFIG.lights.pointDistance * 0.6, duration: 3, ease: 'power2.inOut' }, 0);
     tl.to(pointLight2, { intensity: CONFIG.lights.pointIntensity * 1.4, duration: 3, ease: 'power2.inOut' }, 0.1);
 
-   tl.to(planet.material, { opacity: 0, duration: 3, ease: 'power2.inOut' }, 0);
-   
-    // 3. Push camera in
+    tl.to(planet.material.uniforms.uOpacity, { value: 0, duration: 3, ease: 'power2.inOut' }, 0);   
+    
+   // 3. Push camera in
     tl.to(camera.position, { z: 9, y: 3.2, duration: 3, ease: 'power1.inOut' }, 0);
     
     // 4. Scene fog shifts from dark green/yellow to deep crimson red
@@ -351,8 +418,7 @@ function animate() {
     if (hullModel) hullModel.rotation.y = Math.sin(time * 0.1) * 0.02;
     if (liftModel) liftModel.position.y = 0.5 + Math.sin(time * 0.6 + 1) * 0.03;
     
-    if (planet) planet.rotation.y += 0.0002;
-
+if (planet && planet.material.uniforms) planet.material.uniforms.uTime.value = time;
     camera.position.x += (Math.sin(time * 0.2) * 0.3 - camera.position.x) * 0.01;
 
     renderer.render(scene, camera);
