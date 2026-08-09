@@ -41,8 +41,10 @@ const CONFIG = {
 let scene, camera, renderer, clock;
 let particleSystem, particleGeometry, particleMaterial;
 let pointLight1, pointLight2, ambientLight, dirLight;
-let astronautModel, hullModel, liftModel, planet; 
+let astronautModel, planet; 
 let scrollProgress = 0;
+let mixer;
+let previousTime = 0;
 
 const uiDensity  = document.getElementById('density-val');
 const uiSpectrum = document.getElementById('spectrum-val');
@@ -363,7 +365,20 @@ function loadModels() {
         // Dropped the Y position slightly to center them better without the ship
         astronautModel.position.set(0, -0.5, 0); 
         astronautModel.rotation.y = Math.PI; 
-        
+
+        if (gltf.animations && gltf.animations.length > 0) {
+            mixer = new THREE.AnimationMixer(model);
+            
+            // Grab the first animation track and play it
+            const action = mixer.clipAction(gltf.animations[0]);
+            action.play();
+            
+            console.log("Animation found and playing!");
+        } else {
+            console.log("No animations found in this file.");
+        }
+
+       
         scene.add(model);
     }
 
@@ -435,7 +450,13 @@ function updateUI(progress) {
 function animate() {
     requestAnimationFrame(animate);
     const time = clock.getElapsedTime();
-
+   
+    const delta = time - previousTime;
+    previousTime = time;
+    if (mixer) {
+        mixer.update(delta);
+    }
+   
     if (particleMaterial) particleMaterial.uniforms.uTime.value = time;
     if (particleSystem) particleSystem.rotation.y = time * 0.02;
 
