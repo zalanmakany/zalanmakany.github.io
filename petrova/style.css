@@ -31,7 +31,6 @@ body {
 section {
     min-height: 100vh;
     display: flex;
-    align-items: center;
     justify-content: center;
     position: relative;
 }
@@ -39,23 +38,26 @@ section {
 /* Hero Section */
 #hero {
     background: transparent;
-    align-items: flex-start; /* This pushes the content to the top */
-    padding-top: 12vh;       /* This gives it some breathing room from the top edge */
+    align-items: flex-start; /* Pushes content to the top */
+    padding-top: 12vh;       /* Breathing room from the top edge */
 }
 
 .hero-text {
     text-align: center;
     z-index: 20;
+    width: 100%;
+    padding: 0 1rem;
 }
 
 .hero-text h1 {
-    font-size: clamp(2.5rem, 8vw, 6rem);
+    /* Lowered the minimum size from 2.5rem to 1.5rem for mobile */
+    font-size: clamp(1.5rem, 6vw, 6rem); 
     font-weight: 900;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: #00FF66;
     text-shadow: 0 0 30px rgba(0, 255, 102, 0.4), 0 0 80px rgba(0, 255, 102, 0.15);
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     animation: glowGreen 3s ease-in-out infinite alternate;
 }
 
@@ -65,20 +67,22 @@ section {
 }
 
 .hero-text p {
-    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    /* Adjusted for mobile */
+    font-size: clamp(0.75rem, 2vw, 1.2rem); 
     color: rgba(255, 255, 255, 0.6);
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    margin-bottom: 2rem;
 }
 
-/* Scroll indicator */
+/* Scroll indicator - Pinned to the side */
 .scroll-indicator {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    margin-top: 2rem;
+    position: absolute; 
+    bottom: 15%;        
+    right: 3rem;        
 }
 
 .scroll-indicator span {
@@ -102,6 +106,7 @@ section {
 #transition-zone {
     min-height: 150vh;
     background: transparent;
+    align-items: center;
 }
 
 .zone-label {
@@ -119,6 +124,7 @@ section {
 #end-zone {
     min-height: 100vh;
     background: transparent;
+    align-items: center;
 }
 
 .end-text {
@@ -127,7 +133,7 @@ section {
 }
 
 .end-text h2 {
-    font-size: clamp(1.5rem, 5vw, 3.5rem);
+    font-size: clamp(1.2rem, 5vw, 3.5rem);
     font-weight: 900;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -143,7 +149,7 @@ section {
 }
 
 .end-text p {
-    font-size: clamp(0.85rem, 1.8vw, 1.1rem);
+    font-size: clamp(0.75rem, 1.8vw, 1.1rem);
     color: rgba(255, 255, 255, 0.5);
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -166,60 +172,19 @@ section {
     height: 100%;
 }
 
-/* UI Overlay */
+/* UI Overlay - Hidden entirely */
 #ui-overlay {
-    position: fixed;
-    top: 2rem;
-    left: 2rem;
-    z-index: 100;
-    pointer-events: none;
+    display: none; 
 }
 
-.status-panel {
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 1rem 1.25rem;
-    backdrop-filter: blur(8px);
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    min-width: 220px;
-}
-
-.status-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.status-item .label {
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    color: rgba(255, 255, 255, 0.4);
-    text-transform: uppercase;
-}
-
-.status-item .value {
-    font-size: 0.75rem;
-    font-weight: 700;
-    font-family: 'Courier New', monospace;
-    letter-spacing: 0.05em;
-    color: #00FF66;
-    transition: color 0.1s linear;
-}
-
-/* Responsive */
+/* Responsive Overrides for Mobile */
 @media (max-width: 768px) {
-    #ui-overlay {
-        top: 1rem;
-        left: 1rem;
-    }
-    .status-panel {
-        min-width: 180px;
-        padding: 0.75rem 1rem;
-    }
     .zone-label {
         right: 1rem;
+    }
+    
+    .scroll-indicator {
+        right: 1rem;   /* Tucks it closer to the edge on phones */
+        bottom: 10%;   /* Drops it slightly lower */
     }
 }
