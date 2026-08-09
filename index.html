@@ -520,16 +520,19 @@ function buildLegend(projects) {
     const categoryColors = new Map();
     
     projects.forEach(p => {
+      // If color2 exists, make it a gradient. Otherwise, keep it solid.
+      const bg = p.color2 ? `linear-gradient(135deg, ${p.color}, ${p.color2})` : p.color;
+      
       if (!categoryColors.has(p.legend)) {
-        categoryColors.set(p.legend, new Set([p.color])); 
+        categoryColors.set(p.legend, new Set([bg])); 
       } else {
-        categoryColors.get(p.legend).add(p.color); 
+        categoryColors.get(p.legend).add(bg); 
       }
     });
 
     return Array.from(categoryColors.entries()).map(([legend, colorSet]) => {
       const swatches = Array.from(colorSet)
-        .map(color => `<span class="swatch" style="background:${color}"></span>`)
+        .map(bg => `<span class="swatch" style="background:${bg}"></span>`)
         .join('');
         
       return `
@@ -570,7 +573,9 @@ function buildLegend(projects) {
       const angle = (-90 + i * (360 / n)) * Math.PI / 180;
       const px = cx + Rc * Math.cos(angle);
       const py = cy + Rc * Math.sin(angle);
+      
       const clipId = `clip-${p.id}`;
+      const gradId = `grad-${p.id}`; 
       const rot = 8 * i;
 
       let lines = '';
@@ -579,14 +584,21 @@ function buildLegend(projects) {
         lines += `<line x1="${g}" y1="0" x2="${g}" y2="${size}" transform="rotate(${rot} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
       }
 
-      defs += `<clipPath id="${clipId}"><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}"/></clipPath>`;
-      grids += `<g clip-path="url(#${clipId})" opacity="0.45"><g stroke="${p.color}" stroke-width="0.6">${lines}</g></g>`;
-      circles += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}" fill="none" stroke="${p.color}" stroke-width="1.3"/>`;
+      defs += `
+        <clipPath id="${clipId}"><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}"/></clipPath>
+        <linearGradient id="${gradId}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${size}" y2="${size}">
+          <stop offset="0%" stop-color="${p.color}" />
+          <stop offset="100%" stop-color="${p.color2 || p.color}" />
+        </linearGradient>
+      `;
+      
+      grids += `<g clip-path="url(#${clipId})" opacity="0.45"><g stroke="url(#${gradId})" stroke-width="0.6">${lines}</g></g>`;
+      circles += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}" fill="none" stroke="url(#${gradId})" stroke-width="1.3"/>`;
 
       const lx = cx + (Rc + r * 0.55) * Math.cos(angle);
       const ly = cy + (Rc + r * 0.55) * Math.sin(angle);
       const sub = subDigits[i] || (i + 1);
-      labels += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="${p.color}" text-anchor="middle">U${sub}</text>`;
+            labels += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="${p.color}" text-anchor="middle">U${sub}</text>`;
     });
 
     return `
@@ -598,7 +610,6 @@ function buildLegend(projects) {
       </svg>
     `;
   }
-
   function buildNotes(notes) {
     if (!notes.length) {
       return `<div class="empty-hint">No notes yet.</div>`;
