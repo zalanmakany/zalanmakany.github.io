@@ -382,8 +382,17 @@
       description: "A conversational assistant that asks targeted questions to help turn a vague ambitions into actionable goals.",
       href: "https://zalan.nl/ai-coach",
       color: "#3498db"
+    },
+
+    {
+      id: "petrova-line",
+      name: "The Petrova Line",
+      tag: "creative · 3D",
+      legend: "interactive & 3D",
+      description: "A cinematic, zero-gravity WebGL scene inspired by Project Hail Mary, featuring skeletal animation, dynamic lighting, and scroll-triggered transitions.",
+      href: "https://zalan.nl/petrova-line",
+      color: "#13a152"
     }
- 
 
     // Next project goes here, e.g.:
     // {
@@ -461,18 +470,31 @@
     return div.innerHTML;
   }
 
-  function buildLegend(projects) {
-    // Multiple projects can share a category (same color + label) 
-    // collapse those into a single swatch rather than repeating it.
-    const seen = new Map();
+ function buildLegend(projects) {
+    // Group all unique colors by their legend category
+    const categoryColors = new Map();
+    
     projects.forEach(p => {
-      if (!seen.has(p.legend)) seen.set(p.legend, p.color);
+      if (!categoryColors.has(p.legend)) {
+        categoryColors.set(p.legend, new Set([p.color])); 
+      } else {
+        categoryColors.get(p.legend).add(p.color); 
+      }
     });
-    return Array.from(seen.entries()).map(([legend, color]) => `
-      <span class="legend-item">
-        <span class="swatch" style="background:${color}"></span>${escapeHtml(legend)}
-      </span>
-    `).join('');
+
+    // Build the HTML with a small flex container for multiple dots
+    return Array.from(categoryColors.entries()).map(([legend, colorSet]) => {
+      const swatches = Array.from(colorSet)
+        .map(color => `<span class="swatch" style="background:${color}"></span>`)
+        .join('');
+        
+      return `
+        <span class="legend-item">
+          <span style="display:flex; gap:4px;">${swatches}</span>
+          ${escapeHtml(legend)}
+        </span>
+      `;
+    }).join('');
   }
 
   function buildCards(projects) {
