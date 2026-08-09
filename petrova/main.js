@@ -31,7 +31,7 @@ const CONFIG = {
     },
 
     lights: {
-        ambientIntensity: 0.2,
+        ambientIntensity: 0.02,
         pointIntensity: 3.0,
         pointDistance: 25,
     },
@@ -326,14 +326,24 @@ function loadModels() {
                 child.receiveShadow = true; 
                 
                 if (child.material) {
-                    // 1. Crush the base color to absolute pitch black
+                    // 1. Force base color to pitch black
                     child.material.color.setHex(0x000000); 
                     
-                    // 2. Increase metalness and decrease roughness 
-                    // This ensures the back stays dark, but the edges catch 
-                    // the bright green directional backlight perfectly.
+                    // 2. Kill any built-in glowing (emissive) properties
+                    if (child.material.emissive) {
+                        child.material.emissive.setHex(0x000000);
+                    }
+                    
+                    // 3. Strip away the baked-in texture images
+                    child.material.map = null;
+                    child.material.emissiveMap = null;
+                    
+                    // 4. Keep the shiny reflection for the green backlight
                     child.material.metalness = 0.8;
                     child.material.roughness = 0.3;
+                    
+                    // 5. Force Three.js to recompile the material without the maps
+                    child.material.needsUpdate = true;
                 }
             } 
         });
@@ -356,7 +366,6 @@ function loadModels() {
         
         scene.add(model);
     }
-
     function onError(err, name) {
         const geo = new THREE.BoxGeometry(1, 1, 1);
         const mat = new THREE.MeshBasicMaterial({ color: 0x444444, wireframe: true, transparent: true, opacity: 0.3 });
