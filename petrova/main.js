@@ -374,7 +374,7 @@ function loadModels() {
 // ─── GSAP SCROLL TRIGGER ─────────────────────
 function setupScrollTrigger() {
     gsap.registerPlugin(ScrollTrigger);
-
+    ScrollTrigger.config({ ignoreMobileResize: true });
     const tl = gsap.timeline({
         scrollTrigger: {
             trigger: '#scroll-container',
