@@ -79,15 +79,15 @@ section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     position: absolute; 
-    bottom: 15%;        
+    bottom: 30%;        
     right: 3rem;        
 }
 
 .scroll-indicator span {
-    width: 8px;
-    height: 8px;
+    width: 14px;
+    height: 14px;
     background: #00FF66;
     border-radius: 50%;
     opacity: 0.3;
@@ -102,12 +102,6 @@ section {
     50%      { transform: translateY(12px); opacity: 1; }
 }
 
-/* Transition Zone */
-#transition-zone {
-    min-height: 150vh;
-    background: transparent;
-    align-items: center;
-}
 
 .zone-label {
     font-size: 0.75rem;
@@ -179,12 +173,13 @@ section {
 
 /* Responsive Overrides for Mobile */
 @media (max-width: 768px) {
-    .zone-label {
-        right: 1rem;
+    .scroll-indicator {
+        right: 1rem;   
+        bottom: 20%;   /* Moved higher on mobile as well */
     }
     
-    .scroll-indicator {
-        right: 1rem;   /* Tucks it closer to the edge on phones */
-        bottom: 10%;   /* Drops it slightly lower */
+    .scroll-indicator span {
+        width: 8px;    /* Shrunk back down for smaller phone screens */
+        height: 8px;
     }
 }
