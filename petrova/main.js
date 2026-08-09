@@ -6,7 +6,7 @@
 // ─── CONFIGURATION ─────────────────────────
 const CONFIG = {
     models: {
-        astronaut: './models/astronaut.glb',   
+        astronaut: './models/astronaut_floating_in_space.glb',   
         hull:      './models/hull.glb',        
         lift:      './models/lift.glb',        
     },
