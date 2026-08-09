@@ -81,15 +81,21 @@ function init() {
 }
 
 // ─── LIGHTING ────────────────────────────────
+// ─── LIGHTING ────────────────────────────────
 function setupLighting() {
-    // Greenish-yellow ambient base
     ambientLight = new THREE.AmbientLight(0x2a3311, CONFIG.lights.ambientIntensity); 
     scene.add(ambientLight);
 
-    // Directional light mimicking the planet Adrian illuminating the ship
-    dirLight = new THREE.DirectionalLight(CONFIG.colorAdrian.clone(), 2.0);
-    dirLight.position.set(-20, 20, -50);
+    // --- DUAL GREEN RIM LIGHTING ---
+    // Light 1: Moved closer to the center to wrap around the head and left shoulder
+    dirLight = new THREE.DirectionalLight(CONFIG.colorAdrian.clone(), 3.0); // Boosted intensity
+    dirLight.position.set(-10, 15, -30); 
     scene.add(dirLight);
+
+    // Light 2: New light added to catch the right side and the legs
+    const dirLight2 = new THREE.DirectionalLight(CONFIG.colorAdrian.clone(), 2.0);
+    dirLight2.position.set(15, -5, -30); 
+    scene.add(dirLight2);
 
     // Red Astrophage lights (These start at INTENSITY 0 and fade up on scroll)
     pointLight1 = new THREE.PointLight(CONFIG.colorRed.clone(), 0, CONFIG.lights.pointDistance);
