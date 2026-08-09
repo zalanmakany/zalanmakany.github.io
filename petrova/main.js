@@ -325,13 +325,15 @@ function loadModels() {
                 child.castShadow = true; 
                 child.receiveShadow = true; 
                 
-                // Overwrite the material properties to absorb ambient light 
-                // and reflect the strong green backlight
                 if (child.material) {
-                    child.material.roughness = 0.7;
-                    child.material.metalness = 0.3;
-                    // Darken the texture by 80% to force a silhouette look
-                    child.material.color.multiplyScalar(0.2); 
+                    // 1. Crush the base color to absolute pitch black
+                    child.material.color.setHex(0x000000); 
+                    
+                    // 2. Increase metalness and decrease roughness 
+                    // This ensures the back stays dark, but the edges catch 
+                    // the bright green directional backlight perfectly.
+                    child.material.metalness = 0.8;
+                    child.material.roughness = 0.3;
                 }
             } 
         });
@@ -347,7 +349,7 @@ function loadModels() {
         if (name === 'astronaut') { 
             astronautModel = model; 
             astronautModel.position.set(0, 1.8, 0); 
-            astronautModel.rotation.y = Math.PI; // Starts facing the planet
+            astronautModel.rotation.y = Math.PI; 
         } 
         else if (name === 'hull') { hullModel = model; hullModel.position.set(0, 0, 0); } 
         else if (name === 'lift') { liftModel = model; liftModel.position.set(0, 0.5, 0); }
