@@ -167,26 +167,32 @@ function createStarfield() {
         starSizes[i] = Math.random() * 1.5 + 0.3;
     }
 
- // ─── BACKGROUND PLANET ───────────────────────
-function createPlanet() {
-    // Create a massive sphere (Radius 150, with high detail segments)
-    const geometry = new THREE.SphereGeometry(150, 64, 64);
-    
-    // Give it a dark, moody cinematic material
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x111115, 
-        emissive: 0x020202,
-        roughness: 0.9,
-        metalness: 0.2
-    });
-
-    planet = new THREE.Mesh(geometry, material);
-    
-    // Push it far back into the distance and slightly off to the side
-    planet.position.set(-60, 30, -400); 
-    
-    scene.add(planet);
-}
+   // ─── BACKGROUND PLANET ───────────────────────
+   function createPlanet() {
+       // 1. The Planet Geometry
+       const geometry = new THREE.SphereGeometry(150, 64, 64);
+       
+       // 2. The Material
+       const material = new THREE.MeshStandardMaterial({
+           color: 0x333340,      // Slightly lighter so it isn't pitch black
+           roughness: 0.9,
+           metalness: 0.1,
+           fog: false            // <-- THE FIX: Stops the scene fog from hiding it!
+       });
+   
+       planet = new THREE.Mesh(geometry, material);
+       
+       // Push it far back into the distance and slightly up/left
+       planet.position.set(-80, 40, -400); 
+       scene.add(planet);
+   
+       // 3. Planet Lighting (Creates a cinematic crescent shadow)
+       // This light only really affects the planet because it's so far back
+       const planetLight = new THREE.DirectionalLight(0xfff0dd, 0.6);
+       planetLight.position.set(-300, 150, -300); // Light hitting from the top-left
+       planetLight.target = planet;
+       scene.add(planetLight);
+   }
 
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
     starGeo.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
