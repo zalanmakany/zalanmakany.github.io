@@ -47,7 +47,7 @@ const CONFIG = {
 let scene, camera, renderer, clock;
 let particleSystem, particleGeometry, particleMaterial;
 let pointLight1, pointLight2, ambientLight;
-let astronautModel, hullModel, liftModel;
+let astronautModel, hullModel, liftModel, planetModel;
 let scrollProgress = 0;
 
 // UI elements
@@ -97,6 +97,8 @@ function init() {
 
     // 6. Starfield background
     createStarfield();
+
+    createPlanet();
 
     // 7. Astrophage particle cloud
     createAstrophageCloud();
@@ -164,6 +166,27 @@ function createStarfield() {
 
         starSizes[i] = Math.random() * 1.5 + 0.3;
     }
+
+ // ─── BACKGROUND PLANET ───────────────────────
+function createPlanet() {
+    // Create a massive sphere (Radius 150, with high detail segments)
+    const geometry = new THREE.SphereGeometry(150, 64, 64);
+    
+    // Give it a dark, moody cinematic material
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x111115, 
+        emissive: 0x020202,
+        roughness: 0.9,
+        metalness: 0.2
+    });
+
+    planet = new THREE.Mesh(geometry, material);
+    
+    // Push it far back into the distance and slightly off to the side
+    planet.position.set(-60, 30, -400); 
+    
+    scene.add(planet);
+}
 
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
     starGeo.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
@@ -516,6 +539,10 @@ function animate() {
         liftModel.position.y = 0.5 + Math.sin(time * 0.6 + 1) * 0.03;
     }
 
+   if (planet) {
+        planet.rotation.y += 0.0003;
+    }
+   
     // Camera micro-drift for cinematic feel
     camera.position.x += (Math.sin(time * 0.2) * 0.3 - camera.position.x) * 0.01;
 
