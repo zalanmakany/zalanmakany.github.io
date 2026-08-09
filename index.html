@@ -108,11 +108,27 @@
     font-size: 0.88rem;
     color: var(--ink);
   }
-  .swatch {
-    width: 10px;
-    height: 10px;
-    border-radius: 3px;
+
+ #legend-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.6rem;
+  }
+  
+.swatch-cluster {
+    display: flex;
+    align-items: center;
+  }
+ .swatch {
+    width: 14px;              
+    height: 14px;
+    border-radius: 50%;       /* Circles overlap much better than squares */
+    border: 1.5px solid #fff; /* Creates a clean cutout effect between dots */
+    margin-left: -6px;        /* Pulls them together so they overlap */
     display: inline-block;
+  }
+  .swatch:first-child {
+    margin-left: 0;           
   }
 
   .grid {
@@ -480,8 +496,7 @@
     return div.innerHTML;
   }
 
- function buildLegend(projects) {
-    // Group all unique colors by their legend category
+function buildLegend(projects) {
     const categoryColors = new Map();
     
     projects.forEach(p => {
@@ -492,7 +507,6 @@
       }
     });
 
-    // Build the HTML with a small flex container for multiple dots
     return Array.from(categoryColors.entries()).map(([legend, colorSet]) => {
       const swatches = Array.from(colorSet)
         .map(color => `<span class="swatch" style="background:${color}"></span>`)
@@ -500,7 +514,7 @@
         
       return `
         <span class="legend-item">
-          <span style="display:flex; gap:4px;">${swatches}</span>
+          <span class="swatch-cluster">${swatches}</span>
           ${escapeHtml(legend)}
         </span>
       `;
