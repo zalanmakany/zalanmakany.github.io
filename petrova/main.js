@@ -455,11 +455,26 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+// Cache the initial width of the screen
+let cachedWidth = window.innerWidth;
+
 function onWindowResize() {
+    // If we are on mobile (<= 768px) and the width hasn't changed, 
+    // it is just the search bar hiding. Skip the resize!
+    if (window.innerWidth <= 768 && window.innerWidth === cachedWidth) {
+        return; 
+    }
+    
+    // Otherwise, update the cached width and calculate the new aspect ratio
+    cachedWidth = window.innerWidth;
+
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    if (particleMaterial) particleMaterial.uniforms.uPixelRatio.value = renderer.getPixelRatio();
+    
+    if (particleMaterial) {
+        particleMaterial.uniforms.uPixelRatio.value = renderer.getPixelRatio();
+    }
 }
 
 init();
