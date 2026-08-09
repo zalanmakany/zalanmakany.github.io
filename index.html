@@ -574,7 +574,12 @@ function buildLegend(projects) {
 
       defs += `
         <clipPath id="${clipId}"><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r}"/></clipPath>
-        <linearGradient id="${gradId}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${size}" y2="${size}">
+        
+        <!-- Maps the gradient strictly to this specific circle's left and right edges -->
+        <linearGradient id="${gradId}" gradientUnits="userSpaceOnUse" 
+          x1="${(px - r).toFixed(1)}" y1="${py.toFixed(1)}" 
+          x2="${(px + r).toFixed(1)}" y2="${py.toFixed(1)}">
+          
           <stop offset="50%" stop-color="${p.color}" />
           <stop offset="50%" stop-color="${p.color2 || p.color}" />
         </linearGradient>
