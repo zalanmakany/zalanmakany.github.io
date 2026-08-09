@@ -320,38 +320,9 @@ function createAstrophageCloud() {
 }
 
 // ─── MODEL LOADING ───────────────────────────
-// ─── MODEL LOADING ───────────────────────────
 function loadModels() {
     const loader = new THREE.GLTFLoader();
 
-    // 1. Mathematically define the Hull (Smooth Manifold)
-    const hullGeo = new THREE.CylinderGeometry(40, 40, 60, 64);
-    const hullMat = new THREE.MeshStandardMaterial({
-        color: 0x050505, // Very dark, light-absorbing grey
-        metalness: 0.9,
-        roughness: 0.4
-    });
-    hullModel = new THREE.Mesh(hullGeo, hullMat);
-    // Rotate 90 degrees so it lies flat, creating a massive curved floor
-    hullModel.rotation.z = Math.PI / 2;
-    hullModel.position.set(0, -39.8, 0); 
-    hullModel.receiveShadow = true;
-    scene.add(hullModel);
-
-    // 2. Build the Lift Platform
-    const liftGeo = new THREE.BoxGeometry(2.5, 0.2, 2.5);
-    const liftMat = new THREE.MeshStandardMaterial({
-        color: 0x111111,
-        metalness: 0.8,
-        roughness: 0.2
-    });
-    liftModel = new THREE.Mesh(liftGeo, liftMat);
-    liftModel.position.set(0, 0.2, 0);
-    liftModel.receiveShadow = true;
-    liftModel.castShadow = true;
-    scene.add(liftModel);
-
-    // 3. Load ONLY the Astronaut 
     function onLoad(gltf) {
         const model = gltf.scene;
         
@@ -361,12 +332,20 @@ function loadModels() {
                 child.receiveShadow = true; 
                 
                 if (child.material) {
+                    // Force the true silhouette
                     child.material.color.setHex(0x000000); 
-                    if (child.material.emissive) child.material.emissive.setHex(0x000000);
+                    if (child.material.emissive) {
+                        child.material.emissive.setHex(0x000000);
+                    }
+                    
+                    // Strip baked textures
                     child.material.map = null;
                     child.material.emissiveMap = null;
+                    
+                    // Keep the metallic rim-light reflection
                     child.material.metalness = 0.8;
                     child.material.roughness = 0.3;
+                    
                     child.material.needsUpdate = true;
                 }
             } 
@@ -381,11 +360,14 @@ function loadModels() {
         model.position.sub(center.multiplyScalar(scale));
 
         astronautModel = model; 
-        astronautModel.position.set(0, 1.8, 0); 
+        // Dropped the Y position slightly to center them better without the ship
+        astronautModel.position.set(0, 1.2, 0); 
         astronautModel.rotation.y = Math.PI; 
+        
         scene.add(model);
     }
 
+    // Only load the astronaut now
     loader.load(CONFIG.models.astronaut, onLoad);
 }
 
@@ -458,13 +440,16 @@ function animate() {
     if (particleSystem) particleSystem.rotation.y = time * 0.02;
 
     if (astronautModel) {
-       astronautModel.position.y = 1.8 + Math.sin(time * 0.8) * 0.05;
+       // Gentle space floating
+       astronautModel.position.y = 1.2 + Math.sin(time * 0.8) * 0.1;
        astronautModel.rotation.y = Math.PI + Math.sin(time * 0.3) * 0.05;    
     }
-    if (hullModel) hullModel.rotation.y = Math.sin(time * 0.1) * 0.02;
-    if (liftModel) liftModel.position.y = 0.5 + Math.sin(time * 0.6 + 1) * 0.03;
     
-if (planet && planet.material.uniforms) planet.material.uniforms.uTime.value = time;
+    if (planet && planet.material.uniforms) {
+        planet.material.uniforms.uTime.value = time;
+    }
+    
+    // Slow camera drift
     camera.position.x += (Math.sin(time * 0.2) * 0.3 - camera.position.x) * 0.01;
 
     renderer.render(scene, camera);
