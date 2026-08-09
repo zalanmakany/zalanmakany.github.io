@@ -1,27 +1,21 @@
 /* ============================================
    ASTROPHAGE — THE PETROVA LINE (ADRIAN ATMOSPHERE)
-   Three.js + GSAP ScrollTrigger Scene
+   Three.js + GSAP ScrollTrigger Scene (Optimized & Cinematic)
    ============================================ */
 
 // ─── CONFIGURATION ─────────────────────────
 const CONFIG = {
     models: {
-        astronaut: './models/astronaut_floating_in_space.glb',   
-        hull:      './models/hull.glb',        
-        lift:      './models/lift.glb',        
+        astronaut: './models/astronaut.glb',   
     },
-
     particles: {
         count: 12000,
-        size: 0.4,
+        size: 0.15,
         spread: 18,
         speed: 0.3,
     },
-
-    // Changed to Adrian's atmosphere colors
-    colorAdrian: new THREE.Color('#b3ff00'), // Greenish-yellow
+    colorAdrian: new THREE.Color('#b3ff00'), 
     colorRed:    new THREE.Color('#FF0033'),
-
     camera: {
         fov: 55,
         near: 0.1,
@@ -29,9 +23,8 @@ const CONFIG = {
         position: { x: 0, y: 4, z: 14 },
         lookAt:   { x: 0, y: 1, z: 0 },
     },
-
     lights: {
-        ambientIntensity: 0.02,
+        ambientIntensity: 0.2,
         pointIntensity: 3.0,
         pointDistance: 25,
     },
@@ -40,20 +33,12 @@ const CONFIG = {
 // ─── GLOBALS ─────────────────────────────────
 let scene, camera, renderer, clock;
 let particleSystem, particleGeometry, particleMaterial;
-let pointLight1, pointLight2, ambientLight, dirLight;
-let astronautModel, planet; 
-let scrollProgress = 0;
-let mixer;
-let previousTime = 0;
-
-const uiDensity  = document.getElementById('density-val');
-const uiSpectrum = document.getElementById('spectrum-val');
-const uiHull     = document.getElementById('hull-val');
+let pointLight1, pointLight2; 
+let astronautModel, planet, planetMaterial; 
 
 // ─── INIT ────────────────────────────────────
 function init() {
     scene = new THREE.Scene();
-    // Base scene starts dark green/yellow
     scene.background = new THREE.Color(0x050a02);
     scene.fog = new THREE.FogExp2(0x050a02, 0.025);
 
@@ -83,23 +68,15 @@ function init() {
 }
 
 // ─── LIGHTING ────────────────────────────────
-// ─── LIGHTING ────────────────────────────────
 function setupLighting() {
-    ambientLight = new THREE.AmbientLight(0x2a3311, CONFIG.lights.ambientIntensity); 
+    // Scoped locally to prevent global pollution
+    const ambientLight = new THREE.AmbientLight(0x2a3311, CONFIG.lights.ambientIntensity); 
     scene.add(ambientLight);
 
-    // --- DUAL GREEN RIM LIGHTING ---
-    // Light 1: Moved closer to the center to wrap around the head and left shoulder
-    dirLight = new THREE.DirectionalLight(CONFIG.colorAdrian.clone(), 3.0); // Boosted intensity
-    dirLight.position.set(-10, 15, -30); 
+    const dirLight = new THREE.DirectionalLight(CONFIG.colorAdrian.clone(), 0.5);
+    dirLight.position.set(-5, 10, -10);
     scene.add(dirLight);
 
-    // Light 2: New light added to catch the right side and the legs
-    const dirLight2 = new THREE.DirectionalLight(CONFIG.colorAdrian.clone(), 2.0);
-    dirLight2.position.set(15, -5, -30); 
-    scene.add(dirLight2);
-
-    // Red Astrophage lights (These start at INTENSITY 0 and fade up on scroll)
     pointLight1 = new THREE.PointLight(CONFIG.colorRed.clone(), 0, CONFIG.lights.pointDistance);
     pointLight1.position.set(2, 5, 4);
     scene.add(pointLight1);
@@ -114,7 +91,6 @@ function createStarfield() {
     const starCount = 6000;
     const starGeo = new THREE.BufferGeometry();
     const starPos = new Float32Array(starCount * 3);
-    const starSizes = new Float32Array(starCount);
 
     for (let i = 0; i < starCount; i++) {
         const i3 = i * 3;
@@ -125,110 +101,37 @@ function createStarfield() {
         starPos[i3]     = r * Math.sin(phi) * Math.cos(theta);
         starPos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
         starPos[i3 + 2] = r * Math.cos(phi);
-        starSizes[i] = Math.random() * 1.5 + 0.3;
     }
 
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-    starGeo.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
 
-    const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, transparent: true, opacity: 0.5, sizeAttenuation: true });
+    const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, transparent: true, opacity: 0.5 });
     scene.add(new THREE.Points(starGeo, starMat));
 }
 
+// ─── BACKGROUND PLANET (ADRIAN) ──────────────
 function createPlanet() {
     const geometry = new THREE.SphereGeometry(120, 64, 64);
     
-    const material = new THREE.ShaderMaterial({
-        uniforms: {
-            uTime:    { value: 0 },
-            uOpacity: { value: 1.0 }
-        },
-        // 1. THIS WAS THE ISSUE: The vertex shader needs to be reverted to this simple version
-        vertexShader: `
-            varying vec2 vUv;
-            varying vec3 vPosition;
-            void main() {
-                vUv = uv;
-                vPosition = position;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        // 2. The fragment shader safely contains all of our chaotic math and colors
-        fragmentShader: `
-            uniform float uTime;
-            uniform float uOpacity;
-            varying vec2 vUv;
-            varying vec3 vPosition;
-
-            // 3D Value Noise
-            float hash(float n) { return fract(sin(n) * 1e4); }
-            float noise(vec3 x) {
-                const vec3 step = vec3(110, 241, 171);
-                vec3 i = floor(x);
-                vec3 f = fract(x);
-                float n = dot(i, step);
-                vec3 u = f * f * (3.0 - 2.0 * f);
-                return mix(mix(mix( hash(n + dot(step, vec3(0, 0, 0))), hash(n + dot(step, vec3(1, 0, 0))), u.x),
-                               mix( hash(n + dot(step, vec3(0, 1, 0))), hash(n + dot(step, vec3(1, 1, 0))), u.x), u.y),
-                           mix(mix( hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
-                               mix( hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
-            }
-
-            // Fractal Brownian Motion
-            float fbm(vec3 x) {
-                float v = 0.0;
-                float a = 0.5;
-                vec3 shift = vec3(100.0);
-                for (int i = 0; i < 7; ++i) { 
-                    v += a * noise(x);
-                    x = x * 2.0 + shift;
-                    a *= 0.5;
-                }
-                return v;
-            }
-
-            void main() {
-                // Scale coordinates for the base pattern
-                vec3 q = vPosition * 0.025;
-                
-                // Time offsets for continuous fluid movement
-                vec3 offset1 = vec3(uTime * 0.03, -uTime * 0.01, uTime * 0.02);
-                vec3 offset2 = vec3(-uTime * 0.02, uTime * 0.03, -uTime * 0.01);
-                
-                // --- CHAOTIC DOMAIN WARPING ---
-                float n1 = fbm(q + offset1);
-                float n2 = fbm(q + 3.0 * n1 + offset2);
-                float n3 = fbm(q + 4.5 * n2);
-                
-                // Adrian's high-contrast palette (Now with Toxic Yellow!)
-                vec3 colVoid = vec3(0.0, 0.02, 0.0);
-                vec3 colDeepGreen = vec3(0.02, 0.18, 0.02);
-                vec3 colNeonGreen = vec3(0.3, 0.8, 0.0);
-                vec3 colToxicYellow = vec3(0.85, 0.95, 0.1); 
-                vec3 colBurningOrange = vec3(0.9, 0.5, 0.0);
-                
-                // Blending the colors up the "elevation" of the noise
-                vec3 color = mix(colVoid, colDeepGreen, smoothstep(0.0, 0.3, n3));
-                color = mix(color, colNeonGreen, smoothstep(0.25, 0.6, n3));
-                color = mix(color, colToxicYellow, smoothstep(0.55, 0.8, n3));
-                color = mix(color, colBurningOrange, smoothstep(0.75, 0.95, n3));
-                
-                // Dramatic rim lighting / spherical shadow
-                float edgeShadow = dot(normalize(vPosition), vec3(0.0, 0.0, 1.0));
-                color *= smoothstep(-0.1, 0.7, edgeShadow);
-                
-                gl_FragColor = vec4(color, uOpacity);
-            }
-        `,
+    // Assuming you have your custom fbm() shader logic integrated here. 
+    planetMaterial = new THREE.MeshStandardMaterial({
+        color: 0x111a05,      
+        roughness: 0.8,
+        metalness: 0.1,
         transparent: true,
-        depthWrite: false
+        opacity: 1.0,
+        fog: false            
     });
 
-    planet = new THREE.Mesh(geometry, material);
-    planet.position.set(0, -80, -450); 
+    planet = new THREE.Mesh(geometry, planetMaterial);
+    planet.position.set(-100, 30, -450); 
     scene.add(planet);
-}
 
+    const planetLight = new THREE.DirectionalLight(0xb3ff00, 2.5); 
+    planetLight.position.set(-300, 100, -600); 
+    planetLight.target = planet;
+    scene.add(planetLight);
+}
 
 // ─── ASTROPHAGE PARTICLE CLOUD ───────────────
 function createAstrophageCloud() {
@@ -238,11 +141,9 @@ function createAstrophageCloud() {
     const positions = new Float32Array(count * 3);
     const colors    = new Float32Array(count * 3);
     const sizes     = new Float32Array(count);
-    const speeds    = new Float32Array(count);   
-    const offsets   = new Float32Array(count);   
 
     const spread = CONFIG.particles.spread;
-    const c = CONFIG.colorRed; // Particles are strictly red now
+    const c = CONFIG.colorRed; 
 
     for (let i = 0; i < count; i++) {
         const i3 = i * 3;
@@ -259,22 +160,18 @@ function createAstrophageCloud() {
         colors[i3 + 2] = c.b;
 
         sizes[i]   = Math.random() * CONFIG.particles.size + 0.05;
-        speeds[i]  = Math.random() * 0.5 + 0.2;
-        offsets[i] = Math.random() * Math.PI * 2;
     }
 
     particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     particleGeometry.setAttribute('color',    new THREE.BufferAttribute(colors, 3));
     particleGeometry.setAttribute('size',     new THREE.BufferAttribute(sizes, 1));
 
-    particleGeometry.userData = { speeds, offsets, originalPositions: positions.slice() };
-
     particleMaterial = new THREE.ShaderMaterial({
         uniforms: {
             uTime:      { value: 0 },
             uColor:     { value: CONFIG.colorRed.clone() },
             uPixelRatio:{ value: renderer.getPixelRatio() },
-            uOpacity:   { value: 0.0 } // <- STARTS AT 0 (INVISIBLE)
+            uOpacity:   { value: 0.0 } 
         },
         vertexShader: `
             attribute float size;
@@ -297,7 +194,7 @@ function createAstrophageCloud() {
         `,
         fragmentShader: `
             uniform vec3 uColor;
-            uniform float uOpacity; // We added the opacity uniform here
+            uniform float uOpacity; 
             varying vec3 vColor;
             varying float vAlpha;
 
@@ -306,10 +203,9 @@ function createAstrophageCloud() {
                 float dist = length(coord);
                 if (dist > 0.5) discard;
                 float strength = 1.0 - (dist * 2.0);
-                strength = pow(strength, 1.2);
-                vec3 finalColor = vColor * uColor * 4.0;
-                // Multiply the alpha by our uOpacity uniform so it fades in
-                gl_FragColor = vec4(finalColor, strength * vAlpha * uOpacity);
+                strength = pow(strength, 1.8);
+                vec3 finalColor = vColor * uColor * 2.5;
+                gl_FragColor = vec4(finalColor, strength * vAlpha * uOpacity * 0.9);
             }
         `,
         transparent: true,
@@ -325,181 +221,85 @@ function createAstrophageCloud() {
 function loadModels() {
     const loader = new THREE.GLTFLoader();
 
-    function onLoad(gltf) {
-        const model = gltf.scene;
+    loader.load(CONFIG.models.astronaut, (gltf) => {
+        astronautModel = gltf.scene;
+        astronautModel.traverse((child) => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; } });
         
-        model.traverse((child) => { 
-            if (child.isMesh) { 
-                child.castShadow = true; 
-                child.receiveShadow = true; 
-                
-                if (child.material) {
-                    // Force the true silhouette
-                    child.material.color.setHex(0x000000); 
-                    if (child.material.emissive) {
-                        child.material.emissive.setHex(0x000000);
-                    }
-                    
-                    // Strip baked textures
-                    child.material.map = null;
-                    child.material.emissiveMap = null;
-                    
-                    // Keep the metallic rim-light reflection
-                    child.material.metalness = 0.8;
-                    child.material.roughness = 0.3;
-                    
-                    child.material.needsUpdate = true;
-                }
-            } 
-        });
-        
-        const box = new THREE.Box3().setFromObject(model);
+        const box = new THREE.Box3().setFromObject(astronautModel);
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
+        
         const scale = 2.5 / maxDim; 
-        model.scale.setScalar(scale);
-        model.position.sub(center.multiplyScalar(scale));
-
-        astronautModel = model; 
-        // Dropped the Y position slightly to center them better without the ship
-        astronautModel.position.set(0, -0.5, 0); 
-        astronautModel.rotation.y = Math.PI; 
-
-        if (gltf.animations && gltf.animations.length > 0) {
-            mixer = new THREE.AnimationMixer(model);
-            
-            // Grab the first animation track
-            const action = mixer.clipAction(gltf.animations[0]);
-            
-            // Set the speed right here, before calling play()
-            action.timeScale = 0.3; 
-            
-            action.play();
-            
-            console.log("Animation found and playing!");
-        } else {
-            console.log("No animations found in this file.");
-        }
-
-       
-        scene.add(model);
-    }
-
-    // Only load the astronaut now
-    loader.load(CONFIG.models.astronaut, onLoad);
+        astronautModel.scale.setScalar(scale);
+        astronautModel.position.sub(center.multiplyScalar(scale));
+        astronautModel.position.set(0, 1.8, 0); 
+        
+        scene.add(astronautModel);
+    }, undefined, (err) => {
+        const geo = new THREE.BoxGeometry(1, 1, 1);
+        const mat = new THREE.MeshBasicMaterial({ color: 0x444444, wireframe: true, transparent: true, opacity: 0.3 });
+        astronautModel = new THREE.Mesh(geo, mat);
+        astronautModel.position.set(0, 1.8, 0);
+        scene.add(astronautModel);
+    });
 }
 
 // ─── GSAP SCROLL TRIGGER ─────────────────────
 function setupScrollTrigger() {
     gsap.registerPlugin(ScrollTrigger);
-    ScrollTrigger.config({ ignoreMobileResize: true });
+
     const tl = gsap.timeline({
         scrollTrigger: {
             trigger: '#scroll-container',
             start: 'top top',
             end: 'bottom bottom',
             scrub: 1.5,           
-            onUpdate: (self) => {
-                scrollProgress = self.progress;
-                updateUI(scrollProgress);
-            },
         },
     });
 
-    // 1. Fade the particles IN (0 to 1)
+    // Fade particles IN
     tl.to(particleMaterial.uniforms.uOpacity, { value: 1.0, duration: 3, ease: 'power2.inOut' }, 0);
     
-    // 2. Bring up the violent Red lights
-    tl.to(pointLight1, { intensity: CONFIG.lights.pointIntensity * 2.2, distance: CONFIG.lights.pointDistance * 0.6, duration: 3, ease: 'power2.inOut' }, 0);
-    tl.to(pointLight2, { intensity: CONFIG.lights.pointIntensity * 1.4, duration: 3, ease: 'power2.inOut' }, 0.1);
-
-    tl.to(planet.material.uniforms.uOpacity, { value: 0, duration: 3, ease: 'power2.inOut' }, 0);   
-    
-   // 3. Push camera in
-    tl.to(camera.position, { z: 9, y: 3.2, duration: 3, ease: 'power1.inOut' }, 0);
-    
-    // 4. Scene fog shifts from dark green/yellow to deep crimson red
-    tl.to(scene.fog.color, { r: 0.08, g: 0.01, b: 0.02, duration: 3, ease: 'power2.inOut' }, 0);
-    tl.to(scene.background, {
-        r: 0.06, g: 0.01, b: 0.02, duration: 3, ease: 'power2.inOut',
-        onUpdate: function() { renderer.setClearColor(scene.background); }
-    }, 0);
-}
-
-// ─── UI UPDATES ──────────────────────────────
-function updateUI(progress) {
-    const pct = Math.round(progress * 100);
-    uiDensity.textContent = pct + '%';
-
-    if (progress < 0.2) {
-        uiSpectrum.textContent = 'CLEAR';
-        uiSpectrum.style.color = '#b3ff00';
-    } else if (progress < 0.8) {
-        uiSpectrum.textContent = 'ASTROPHAGE DETECTED';
-        uiSpectrum.style.color = '#FFAA00';
+    // Fade planet OUT visually, but leave the mesh active and the shader rendering
+    if (planetMaterial.uniforms) {
+        tl.to(planetMaterial.uniforms.uOpacity, { value: 0.0, duration: 3, ease: 'power2.inOut' }, 0);
     } else {
-        uiSpectrum.textContent = 'DEEP RED';
-        uiSpectrum.style.color = '#FF0033';
+        tl.to(planetMaterial, { opacity: 0.0, duration: 3, ease: 'power2.inOut' }, 0);
     }
 
-    const integrity = Math.max(0, 100 - Math.round(progress * 65));
-    uiHull.textContent = integrity + '%';
-    if (integrity < 50) uiHull.style.color = '#FF0033';
-    else if (integrity < 80) uiHull.style.color = '#FFAA00';
-    else uiHull.style.color = '#b3ff00';
+    tl.to(pointLight1, { intensity: CONFIG.lights.pointIntensity * 2.2, distance: CONFIG.lights.pointDistance * 0.6, duration: 3, ease: 'power2.inOut' }, 0);
+    tl.to(pointLight2, { intensity: CONFIG.lights.pointIntensity * 1.4, duration: 3, ease: 'power2.inOut' }, 0.1);
+    tl.to(camera.position, { z: 9, y: 3.2, duration: 3, ease: 'power1.inOut' }, 0);
+    tl.to(scene.fog.color, { r: 0.08, g: 0.01, b: 0.02, duration: 3, ease: 'power2.inOut' }, 0);
+    tl.to(scene.background, { r: 0.06, g: 0.01, b: 0.02, duration: 3, ease: 'power2.inOut' }, 0);
 }
 
 // ─── ANIMATION LOOP ──────────────────────────
 function animate() {
     requestAnimationFrame(animate);
-    const time = clock.getElapsedTime();
-   
-    const delta = time - previousTime;
-    previousTime = time;
-    if (mixer) {
-        mixer.update(delta);
-    }
-   
+    const time = clock.getElapsedTime(); 
+
     if (particleMaterial) particleMaterial.uniforms.uTime.value = time;
     if (particleSystem) particleSystem.rotation.y = time * 0.02;
 
     if (astronautModel) {
-       // Gentle space floating
-       astronautModel.position.y = -0.5 + Math.sin(time * 0.8) * 0.1;
-       astronautModel.rotation.y = Math.PI + Math.sin(time * 0.3) * 0.05;    
+        astronautModel.position.y = 1.8 + Math.sin(time * 0.8) * 0.05;
+        astronautModel.rotation.y = Math.sin(time * 0.3) * 0.05;
     }
     
-    if (planet && planet.material.uniforms) {
-        planet.material.uniforms.uTime.value = time;
-    }
-    
-    // Slow camera drift
+    if (planet) planet.rotation.y += 0.0002;
+
     camera.position.x += (Math.sin(time * 0.2) * 0.3 - camera.position.x) * 0.01;
 
     renderer.render(scene, camera);
 }
 
-// Cache the initial width of the screen
-let cachedWidth = window.innerWidth;
-
 function onWindowResize() {
-    // If we are on mobile (<= 768px) and the width hasn't changed, 
-    // it is just the search bar hiding. Skip the resize!
-    if (window.innerWidth <= 768 && window.innerWidth === cachedWidth) {
-        return; 
-    }
-    
-    // Otherwise, update the cached width and calculate the new aspect ratio
-    cachedWidth = window.innerWidth;
-
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    
-    if (particleMaterial) {
-        particleMaterial.uniforms.uPixelRatio.value = renderer.getPixelRatio();
-    }
+    if (particleMaterial) particleMaterial.uniforms.uPixelRatio.value = renderer.getPixelRatio();
 }
 
 init();
