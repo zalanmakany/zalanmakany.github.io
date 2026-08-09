@@ -6,9 +6,7 @@
 // ─── CONFIGURATION ─────────────────────────
 const CONFIG = {
     models: {
-        astronaut: './models/astronaut_floating_in_space.glb',   
-        hull:      './models/hull.glb',        
-        lift:      './models/lift.glb',        
+        astronaut: './models/astronaut_floating_in_space.glb',      
     },
 
     particles: {
@@ -46,9 +44,6 @@ let scrollProgress = 0;
 let mixer;
 let previousTime = 0;
 
-const uiDensity  = document.getElementById('density-val');
-const uiSpectrum = document.getElementById('spectrum-val');
-const uiHull     = document.getElementById('hull-val');
 
 // ─── INIT ────────────────────────────────────
 function init() {
@@ -402,7 +397,6 @@ function setupScrollTrigger() {
             scrub: 1.5,           
             onUpdate: (self) => {
                 scrollProgress = self.progress;
-                updateUI(scrollProgress);
             },
         },
     });
@@ -427,28 +421,6 @@ function setupScrollTrigger() {
     }, 0);
 }
 
-// ─── UI UPDATES ──────────────────────────────
-function updateUI(progress) {
-    const pct = Math.round(progress * 100);
-    uiDensity.textContent = pct + '%';
-
-    if (progress < 0.2) {
-        uiSpectrum.textContent = 'CLEAR';
-        uiSpectrum.style.color = '#b3ff00';
-    } else if (progress < 0.8) {
-        uiSpectrum.textContent = 'ASTROPHAGE DETECTED';
-        uiSpectrum.style.color = '#FFAA00';
-    } else {
-        uiSpectrum.textContent = 'DEEP RED';
-        uiSpectrum.style.color = '#FF0033';
-    }
-
-    const integrity = Math.max(0, 100 - Math.round(progress * 65));
-    uiHull.textContent = integrity + '%';
-    if (integrity < 50) uiHull.style.color = '#FF0033';
-    else if (integrity < 80) uiHull.style.color = '#FFAA00';
-    else uiHull.style.color = '#b3ff00';
-}
 
 // ─── ANIMATION LOOP ──────────────────────────
 function animate() {
