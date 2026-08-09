@@ -1,0 +1,223 @@
+/* ============================================
+   ASTROPHAGE — THE PETROVA LINE
+   Lightweight, deployment-ready stylesheet
+   ============================================ */
+
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: auto;
+}
+
+body {
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+    background: #000;
+    color: #fff;
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* Scroll container drives the GSAP timeline */
+#scroll-container {
+    position: relative;
+    z-index: 10;
+}
+
+/* Each section is tall enough to give scroll room */
+section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Hero Section */
+#hero {
+    background: transparent;
+}
+
+.hero-text {
+    text-align: center;
+    z-index: 20;
+}
+
+.hero-text h1 {
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #00FF66;
+    text-shadow: 0 0 30px rgba(0, 255, 102, 0.4), 0 0 80px rgba(0, 255, 102, 0.15);
+    margin-bottom: 1rem;
+    animation: glowGreen 3s ease-in-out infinite alternate;
+}
+
+@keyframes glowGreen {
+    from { text-shadow: 0 0 30px rgba(0, 255, 102, 0.4), 0 0 80px rgba(0, 255, 102, 0.15); }
+    to   { text-shadow: 0 0 50px rgba(0, 255, 102, 0.7), 0 0 120px rgba(0, 255, 102, 0.3); }
+}
+
+.hero-text p {
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+}
+
+/* Scroll indicator */
+.scroll-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2rem;
+}
+
+.scroll-indicator span {
+    width: 8px;
+    height: 8px;
+    background: #00FF66;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: bounce 1.5s infinite;
+}
+
+.scroll-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.scroll-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); opacity: 0.3; }
+    50%      { transform: translateY(12px); opacity: 1; }
+}
+
+/* Transition Zone */
+#transition-zone {
+    min-height: 150vh;
+    background: transparent;
+}
+
+.zone-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.15);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    position: absolute;
+    right: 3rem;
+}
+
+/* End Zone */
+#end-zone {
+    min-height: 100vh;
+    background: transparent;
+}
+
+.end-text {
+    text-align: center;
+    z-index: 20;
+}
+
+.end-text h2 {
+    font-size: clamp(1.5rem, 5vw, 3.5rem);
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #FF0033;
+    text-shadow: 0 0 30px rgba(255, 0, 51, 0.5), 0 0 80px rgba(255, 0, 51, 0.2);
+    margin-bottom: 1rem;
+    animation: glowRed 2s ease-in-out infinite alternate;
+}
+
+@keyframes glowRed {
+    from { text-shadow: 0 0 30px rgba(255, 0, 51, 0.5), 0 0 80px rgba(255, 0, 51, 0.2); }
+    to   { text-shadow: 0 0 50px rgba(255, 0, 51, 0.8), 0 0 120px rgba(255, 0, 51, 0.4); }
+}
+
+.end-text p {
+    font-size: clamp(0.85rem, 1.8vw, 1.1rem);
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+/* 3D Canvas — fixed behind everything */
+#canvas-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
+}
+
+#canvas-container canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* UI Overlay */
+#ui-overlay {
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.status-panel {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-width: 220px;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-item .label {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+}
+
+.status-item .value {
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.05em;
+    color: #00FF66;
+    transition: color 0.1s linear;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #ui-overlay {
+        top: 1rem;
+        left: 1rem;
+    }
+    .status-panel {
+        min-width: 180px;
+        padding: 0.75rem 1rem;
+    }
+    .zone-label {
+        right: 1rem;
+    }
+}

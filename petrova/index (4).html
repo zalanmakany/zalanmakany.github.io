@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astrophage — The Petrova Line</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GLTFLoader -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- GSAP + ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+</head>
+<body>
+    <!-- Scroll container to drive the animation -->
+    <div id="scroll-container">
+        <section id="hero">
+            <div class="hero-text">
+                <h1>THE PETROVA LINE</h1>
+                <p>Scroll down to initiate the Astrophage sequence</p>
+                <div class="scroll-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </section>
+        <section id="transition-zone">
+            <div class="zone-label">Transition Zone</div>
+        </section>
+        <section id="end-zone">
+            <div class="end-text">
+                <h2>CRITICAL THRESHOLD REACHED</h2>
+                <p>Astrophage density at maximum. Hull temperature rising.</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- UI Overlay -->
+    <div id="ui-overlay">
+        <div class="status-panel">
+            <div class="status-item">
+                <span class="label">ASTROPHAGE DENSITY</span>
+                <span class="value" id="density-val">0%</span>
+            </div>
+            <div class="status-item">
+                <span class="label">EMISSIVE SPECTRUM</span>
+                <span class="value" id="spectrum-val">NEON GREEN</span>
+            </div>
+            <div class="status-item">
+                <span class="label">HULL INTEGRITY</span>
+                <span class="value" id="hull-val">100%</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
