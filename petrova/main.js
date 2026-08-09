@@ -87,8 +87,8 @@ function setupLighting() {
     scene.add(ambientLight);
 
     // Directional light mimicking the planet Adrian illuminating the ship
-    dirLight = new THREE.DirectionalLight(CONFIG.colorAdrian.clone(), 0.5);
-    dirLight.position.set(-5, 10, -10);
+    dirLight = new THREE.DirectionalLight(CONFIG.colorAdrian.clone(), 2.0);
+    dirLight.position.set(-20, 20, -50);
     scene.add(dirLight);
 
     // Red Astrophage lights (These start at INTENSITY 0 and fade up on scroll)
@@ -319,7 +319,23 @@ function loadModels() {
 
     function onLoad(gltf, name) {
         const model = gltf.scene;
-        model.traverse((child) => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; } });
+        
+        model.traverse((child) => { 
+            if (child.isMesh) { 
+                child.castShadow = true; 
+                child.receiveShadow = true; 
+                
+                // Overwrite the material properties to absorb ambient light 
+                // and reflect the strong green backlight
+                if (child.material) {
+                    child.material.roughness = 0.7;
+                    child.material.metalness = 0.3;
+                    // Darken the texture by 80% to force a silhouette look
+                    child.material.color.multiplyScalar(0.2); 
+                }
+            } 
+        });
+        
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
@@ -328,9 +344,14 @@ function loadModels() {
         model.scale.setScalar(scale);
         model.position.sub(center.multiplyScalar(scale));
 
-        if (name === 'astronaut') { astronautModel = model; astronautModel.position.set(0, 1.8, 0); } 
+        if (name === 'astronaut') { 
+            astronautModel = model; 
+            astronautModel.position.set(0, 1.8, 0); 
+            astronautModel.rotation.y = Math.PI; // Starts facing the planet
+        } 
         else if (name === 'hull') { hullModel = model; hullModel.position.set(0, 0, 0); } 
         else if (name === 'lift') { liftModel = model; liftModel.position.set(0, 0.5, 0); }
+        
         scene.add(model);
     }
 
@@ -418,8 +439,8 @@ function animate() {
     if (particleSystem) particleSystem.rotation.y = time * 0.02;
 
     if (astronautModel) {
-        astronautModel.position.y = 1.8 + Math.sin(time * 0.8) * 0.05;
-        astronautModel.rotation.y = Math.sin(time * 0.3) * 0.05;
+       astronautModel.position.y = 1.8 + Math.sin(time * 0.8) * 0.05;
+       astronautModel.rotation.y = Math.PI + Math.sin(time * 0.3) * 0.05;    
     }
     if (hullModel) hullModel.rotation.y = Math.sin(time * 0.1) * 0.02;
     if (liftModel) liftModel.position.y = 0.5 + Math.sin(time * 0.6 + 1) * 0.03;
