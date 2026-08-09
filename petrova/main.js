@@ -220,7 +220,7 @@ function createPlanet() {
     planet.position.set(-100, 30, -450); 
     scene.add(planet);
 }
-}
+
 
 // ─── ASTROPHAGE PARTICLE CLOUD ───────────────
 function createAstrophageCloud() {
