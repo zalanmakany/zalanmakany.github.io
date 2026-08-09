@@ -39,6 +39,8 @@ section {
 /* Hero Section */
 #hero {
     background: transparent;
+    align-items: flex-start; /* This pushes the content to the top */
+    padding-top: 12vh;       /* This gives it some breathing room from the top edge */
 }
 
 .hero-text {
