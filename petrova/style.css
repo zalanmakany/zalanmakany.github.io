@@ -116,7 +116,7 @@ section {
 
 /* End Zone */
 #end-zone {
-    min-height: 100vh;
+    min-height: 150vh;
     background: transparent;
     align-items: center;
 }
