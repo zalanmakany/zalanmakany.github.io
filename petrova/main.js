@@ -369,8 +369,12 @@ function loadModels() {
         if (gltf.animations && gltf.animations.length > 0) {
             mixer = new THREE.AnimationMixer(model);
             
-            // Grab the first animation track and play it
+            // Grab the first animation track
             const action = mixer.clipAction(gltf.animations[0]);
+            
+            // Set the speed right here, before calling play()
+            action.timeScale = 0.3; 
+            
             action.play();
             
             console.log("Animation found and playing!");
