@@ -145,13 +145,13 @@ function createPlanet() {
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
         `,
-        fragmentShader: `
+       fragmentShader: `
             uniform float uTime;
             uniform float uOpacity;
             varying vec2 vUv;
             varying vec3 vPosition;
 
-            // Simplified 3D Value Noise
+            // 3D Value Noise
             float hash(float n) { return fract(sin(n) * 1e4); }
             float noise(vec3 x) {
                 const vec3 step = vec3(110, 241, 171);
@@ -165,12 +165,12 @@ function createPlanet() {
                                mix( hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
             }
 
-            // Fractional Brownian Motion for fractal-like swirls
+            // Fractal Brownian Motion (Increased to 7 octaves for sharp detail)
             float fbm(vec3 x) {
                 float v = 0.0;
                 float a = 0.5;
                 vec3 shift = vec3(100.0);
-                for (int i = 0; i < 5; ++i) {
+                for (int i = 0; i < 7; ++i) { 
                     v += a * noise(x);
                     x = x * 2.0 + shift;
                     a *= 0.5;
@@ -179,28 +179,37 @@ function createPlanet() {
             }
 
             void main() {
-                // Scale coordinates for the noise
-                vec3 q = vPosition * 0.015;
+                // Scale coordinates for the base pattern
+                vec3 q = vPosition * 0.025;
                 
-                // Add slow rotation over time
-                q.x += uTime * 0.05;
-                q.y += uTime * 0.02;
+                // Time offsets for continuous fluid movement
+                vec3 offset1 = vec3(uTime * 0.03, -uTime * 0.01, uTime * 0.02);
+                vec3 offset2 = vec3(-uTime * 0.02, uTime * 0.03, -uTime * 0.01);
                 
-                // Domain warping: feeding noise into noise for the swirly look
-                float n = fbm(q + fbm(q + vec3(uTime * 0.1)));
+                // --- CHAOTIC DOMAIN WARPING ---
+                // Layer 1: Base fractal noise
+                float n1 = fbm(q + offset1);
+                // Layer 2: Feed Layer 1 into the coordinates, multiplying to stretch the swirls
+                float n2 = fbm(q + 3.0 * n1 + offset2);
+                // Layer 3: Feed Layer 2 back in for that violent, fluid-like turbulence
+                float n3 = fbm(q + 4.5 * n2);
                 
-                // Define the Adrian color palette
-                vec3 deepGreen = vec3(0.01, 0.15, 0.02);
-                vec3 neonGreen = vec3(0.4, 0.9, 0.0);
-                vec3 toxicYellow = vec3(0.8, 0.7, 0.1);
+                // Adrian's high-contrast palette
+                vec3 colVoid = vec3(0.0, 0.02, 0.0);
+                vec3 colDeepGreen = vec3(0.02, 0.18, 0.02);
+                vec3 colNeonGreen = vec3(0.3, 0.8, 0.0);
+                vec3 colBurningOrange = vec3(0.9, 0.5, 0.0);
                 
-                // Mix colors based on the noise value
-                vec3 color = mix(deepGreen, neonGreen, smoothstep(0.2, 0.7, n));
-                color = mix(color, toxicYellow, smoothstep(0.6, 1.0, n));
+                // Harsh blending to create sharp edges between the colors
+                vec3 color = mix(colVoid, colDeepGreen, smoothstep(0.0, 0.4, n3));
+                color = mix(color, colNeonGreen, smoothstep(0.35, 0.7, n3));
                 
-                // Add a vignette/shadow on the edges of the sphere to make it look 3D
+                // Pin the toxic orange only to the absolute crests of the noise
+                color = mix(color, colBurningOrange, smoothstep(0.7, 0.95, n3));
+                
+                // Dramatic rim lighting / spherical shadow
                 float edgeShadow = dot(normalize(vPosition), vec3(0.0, 0.0, 1.0));
-                color *= smoothstep(-0.2, 0.8, edgeShadow);
+                color *= smoothstep(-0.1, 0.7, edgeShadow);
                 
                 gl_FragColor = vec4(color, uOpacity);
             }
