@@ -140,9 +140,40 @@ function createPlanet() {
             varying vec2 vUv;
             varying vec3 vPosition;
             void main() {
-                vUv = uv;
-                vPosition = position;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                // Scale coordinates for the base pattern
+                vec3 q = vPosition * 0.025;
+                
+                // Time offsets for continuous fluid movement
+                vec3 offset1 = vec3(uTime * 0.03, -uTime * 0.01, uTime * 0.02);
+                vec3 offset2 = vec3(-uTime * 0.02, uTime * 0.03, -uTime * 0.01);
+                
+                // --- CHAOTIC DOMAIN WARPING ---
+                float n1 = fbm(q + offset1);
+                float n2 = fbm(q + 3.0 * n1 + offset2);
+                float n3 = fbm(q + 4.5 * n2);
+                
+                // Adrian's high-contrast palette (Now with Toxic Yellow!)
+                vec3 colVoid = vec3(0.0, 0.02, 0.0);
+                vec3 colDeepGreen = vec3(0.02, 0.18, 0.02);
+                vec3 colNeonGreen = vec3(0.3, 0.8, 0.0);
+                vec3 colToxicYellow = vec3(0.85, 0.95, 0.1); // <-- Added Yellow
+                vec3 colBurningOrange = vec3(0.9, 0.5, 0.0);
+                
+                // Blending the colors up the "elevation" of the noise
+                vec3 color = mix(colVoid, colDeepGreen, smoothstep(0.0, 0.3, n3));
+                color = mix(color, colNeonGreen, smoothstep(0.25, 0.6, n3));
+                
+                // Inject the yellow along the upper ridges
+                color = mix(color, colToxicYellow, smoothstep(0.55, 0.8, n3));
+                
+                // Keep the orange pinned only to the absolute hottest peaks
+                color = mix(color, colBurningOrange, smoothstep(0.75, 0.95, n3));
+                
+                // Dramatic rim lighting / spherical shadow
+                float edgeShadow = dot(normalize(vPosition), vec3(0.0, 0.0, 1.0));
+                color *= smoothstep(-0.1, 0.7, edgeShadow);
+                
+                gl_FragColor = vec4(color, uOpacity);
             }
         `,
        fragmentShader: `
