@@ -130,53 +130,23 @@ function createStarfield() {
 function createPlanet() {
     const geometry = new THREE.SphereGeometry(120, 64, 64);
     
-    // We replace MeshStandardMaterial with a custom ShaderMaterial
     const material = new THREE.ShaderMaterial({
         uniforms: {
             uTime:    { value: 0 },
-            uOpacity: { value: 1.0 } // We'll animate this to fade the planet
+            uOpacity: { value: 1.0 }
         },
+        // 1. THIS WAS THE ISSUE: The vertex shader needs to be reverted to this simple version
         vertexShader: `
             varying vec2 vUv;
             varying vec3 vPosition;
             void main() {
-                // Scale coordinates for the base pattern
-                vec3 q = vPosition * 0.025;
-                
-                // Time offsets for continuous fluid movement
-                vec3 offset1 = vec3(uTime * 0.03, -uTime * 0.01, uTime * 0.02);
-                vec3 offset2 = vec3(-uTime * 0.02, uTime * 0.03, -uTime * 0.01);
-                
-                // --- CHAOTIC DOMAIN WARPING ---
-                float n1 = fbm(q + offset1);
-                float n2 = fbm(q + 3.0 * n1 + offset2);
-                float n3 = fbm(q + 4.5 * n2);
-                
-                // Adrian's high-contrast palette (Now with Toxic Yellow!)
-                vec3 colVoid = vec3(0.0, 0.02, 0.0);
-                vec3 colDeepGreen = vec3(0.02, 0.18, 0.02);
-                vec3 colNeonGreen = vec3(0.3, 0.8, 0.0);
-                vec3 colToxicYellow = vec3(0.85, 0.95, 0.1); // <-- Added Yellow
-                vec3 colBurningOrange = vec3(0.9, 0.5, 0.0);
-                
-                // Blending the colors up the "elevation" of the noise
-                vec3 color = mix(colVoid, colDeepGreen, smoothstep(0.0, 0.3, n3));
-                color = mix(color, colNeonGreen, smoothstep(0.25, 0.6, n3));
-                
-                // Inject the yellow along the upper ridges
-                color = mix(color, colToxicYellow, smoothstep(0.55, 0.8, n3));
-                
-                // Keep the orange pinned only to the absolute hottest peaks
-                color = mix(color, colBurningOrange, smoothstep(0.75, 0.95, n3));
-                
-                // Dramatic rim lighting / spherical shadow
-                float edgeShadow = dot(normalize(vPosition), vec3(0.0, 0.0, 1.0));
-                color *= smoothstep(-0.1, 0.7, edgeShadow);
-                
-                gl_FragColor = vec4(color, uOpacity);
+                vUv = uv;
+                vPosition = position;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
         `,
-       fragmentShader: `
+        // 2. The fragment shader safely contains all of our chaotic math and colors
+        fragmentShader: `
             uniform float uTime;
             uniform float uOpacity;
             varying vec2 vUv;
@@ -196,7 +166,7 @@ function createPlanet() {
                                mix( hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
             }
 
-            // Fractal Brownian Motion (Increased to 7 octaves for sharp detail)
+            // Fractal Brownian Motion
             float fbm(vec3 x) {
                 float v = 0.0;
                 float a = 0.5;
@@ -218,25 +188,22 @@ function createPlanet() {
                 vec3 offset2 = vec3(-uTime * 0.02, uTime * 0.03, -uTime * 0.01);
                 
                 // --- CHAOTIC DOMAIN WARPING ---
-                // Layer 1: Base fractal noise
                 float n1 = fbm(q + offset1);
-                // Layer 2: Feed Layer 1 into the coordinates, multiplying to stretch the swirls
                 float n2 = fbm(q + 3.0 * n1 + offset2);
-                // Layer 3: Feed Layer 2 back in for that violent, fluid-like turbulence
                 float n3 = fbm(q + 4.5 * n2);
                 
-                // Adrian's high-contrast palette
+                // Adrian's high-contrast palette (Now with Toxic Yellow!)
                 vec3 colVoid = vec3(0.0, 0.02, 0.0);
                 vec3 colDeepGreen = vec3(0.02, 0.18, 0.02);
                 vec3 colNeonGreen = vec3(0.3, 0.8, 0.0);
+                vec3 colToxicYellow = vec3(0.85, 0.95, 0.1); 
                 vec3 colBurningOrange = vec3(0.9, 0.5, 0.0);
                 
-                // Harsh blending to create sharp edges between the colors
-                vec3 color = mix(colVoid, colDeepGreen, smoothstep(0.0, 0.4, n3));
-                color = mix(color, colNeonGreen, smoothstep(0.35, 0.7, n3));
-                
-                // Pin the toxic orange only to the absolute crests of the noise
-                color = mix(color, colBurningOrange, smoothstep(0.7, 0.95, n3));
+                // Blending the colors up the "elevation" of the noise
+                vec3 color = mix(colVoid, colDeepGreen, smoothstep(0.0, 0.3, n3));
+                color = mix(color, colNeonGreen, smoothstep(0.25, 0.6, n3));
+                color = mix(color, colToxicYellow, smoothstep(0.55, 0.8, n3));
+                color = mix(color, colBurningOrange, smoothstep(0.75, 0.95, n3));
                 
                 // Dramatic rim lighting / spherical shadow
                 float edgeShadow = dot(normalize(vPosition), vec3(0.0, 0.0, 1.0));
@@ -252,8 +219,7 @@ function createPlanet() {
     planet = new THREE.Mesh(geometry, material);
     planet.position.set(-100, 30, -450); 
     scene.add(planet);
-
-    // We no longer need the planetLight since the shader generates its own color/shadow
+}
 }
 
 // ─── ASTROPHAGE PARTICLE CLOUD ───────────────
