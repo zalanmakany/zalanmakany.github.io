@@ -361,7 +361,7 @@ function loadModels() {
 
         astronautModel = model; 
         // Dropped the Y position slightly to center them better without the ship
-        astronautModel.position.set(0, -1.5, 0); 
+        astronautModel.position.set(0, -1.2, 0); 
         astronautModel.rotation.y = Math.PI; 
         
         scene.add(model);
@@ -441,7 +441,7 @@ function animate() {
 
     if (astronautModel) {
        // Gentle space floating
-       astronautModel.position.y = -1.5 + Math.sin(time * 0.8) * 0.1;
+       astronautModel.position.y = -1.2 + Math.sin(time * 0.8) * 0.1;
        astronautModel.rotation.y = Math.PI + Math.sin(time * 0.3) * 0.05;    
     }
     
