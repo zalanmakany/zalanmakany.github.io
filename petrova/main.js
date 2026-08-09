@@ -223,7 +223,7 @@ function createPlanet() {
     });
 
     planet = new THREE.Mesh(geometry, material);
-    planet.position.set(-100, 30, -450); 
+    planet.position.set(0, 10, -450); 
     scene.add(planet);
 }
 
