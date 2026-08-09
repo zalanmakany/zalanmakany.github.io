@@ -1,13 +1,10 @@
 /* ============================================
-   ASTROPHAGE — THE PETROVA LINE
+   ASTROPHAGE — THE PETROVA LINE (ADRIAN ATMOSPHERE)
    Three.js + GSAP ScrollTrigger Scene
    ============================================ */
 
 // ─── CONFIGURATION ─────────────────────────
 const CONFIG = {
-    // ═══════════════════════════════════════
-    // INSERT YOUR .glb FILE PATHS HERE:
-    // ═══════════════════════════════════════
     models: {
         astronaut: './models/astronaut.glb',   
         hull:      './models/hull.glb',        
@@ -21,8 +18,9 @@ const CONFIG = {
         speed: 0.3,
     },
 
-    colorGreen: new THREE.Color('#00FF66'),
-    colorRed:   new THREE.Color('#FF0033'),
+    // Changed to Adrian's atmosphere colors
+    colorAdrian: new THREE.Color('#b3ff00'), // Greenish-yellow
+    colorRed:    new THREE.Color('#FF0033'),
 
     camera: {
         fov: 55,
@@ -33,8 +31,8 @@ const CONFIG = {
     },
 
     lights: {
-        ambientIntensity: 0.15,
-        pointIntensity: 2.5,
+        ambientIntensity: 0.2,
+        pointIntensity: 3.0,
         pointDistance: 25,
     },
 };
@@ -42,11 +40,10 @@ const CONFIG = {
 // ─── GLOBALS ─────────────────────────────────
 let scene, camera, renderer, clock;
 let particleSystem, particleGeometry, particleMaterial;
-let pointLight1, pointLight2, ambientLight;
-let astronautModel, hullModel, liftModel, planet; // <-- Planet added here
+let pointLight1, pointLight2, ambientLight, dirLight;
+let astronautModel, hullModel, liftModel, planet; 
 let scrollProgress = 0;
 
-// UI elements
 const uiDensity  = document.getElementById('density-val');
 const uiSpectrum = document.getElementById('spectrum-val');
 const uiHull     = document.getElementById('hull-val');
@@ -54,15 +51,11 @@ const uiHull     = document.getElementById('hull-val');
 // ─── INIT ────────────────────────────────────
 function init() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x020204);
-    scene.fog = new THREE.FogExp2(0x020204, 0.025);
+    // Base scene starts dark green/yellow
+    scene.background = new THREE.Color(0x050a02);
+    scene.fog = new THREE.FogExp2(0x050a02, 0.025);
 
-    camera = new THREE.PerspectiveCamera(
-        CONFIG.camera.fov,
-        window.innerWidth / window.innerHeight,
-        CONFIG.camera.near,
-        CONFIG.camera.far
-    );
+    camera = new THREE.PerspectiveCamera(CONFIG.camera.fov, window.innerWidth / window.innerHeight, CONFIG.camera.near, CONFIG.camera.far);
     camera.position.set(CONFIG.camera.position.x, CONFIG.camera.position.y, CONFIG.camera.position.z);
     camera.lookAt(CONFIG.camera.lookAt.x, CONFIG.camera.lookAt.y, CONFIG.camera.lookAt.z);
 
@@ -78,7 +71,7 @@ function init() {
 
     setupLighting();
     createStarfield();
-    createPlanet(); // <-- Planet function called here
+    createPlanet(); 
     createAstrophageCloud();
     loadModels();
     setupScrollTrigger();
@@ -89,20 +82,23 @@ function init() {
 
 // ─── LIGHTING ────────────────────────────────
 function setupLighting() {
-    ambientLight = new THREE.AmbientLight(0xffffff, CONFIG.lights.ambientIntensity);
+    // Greenish-yellow ambient base
+    ambientLight = new THREE.AmbientLight(0x2a3311, CONFIG.lights.ambientIntensity); 
     scene.add(ambientLight);
 
-    pointLight1 = new THREE.PointLight(CONFIG.colorGreen.clone(), CONFIG.lights.pointIntensity, CONFIG.lights.pointDistance);
+    // Directional light mimicking the planet Adrian illuminating the ship
+    dirLight = new THREE.DirectionalLight(CONFIG.colorAdrian.clone(), 0.5);
+    dirLight.position.set(-5, 10, -10);
+    scene.add(dirLight);
+
+    // Red Astrophage lights (These start at INTENSITY 0 and fade up on scroll)
+    pointLight1 = new THREE.PointLight(CONFIG.colorRed.clone(), 0, CONFIG.lights.pointDistance);
     pointLight1.position.set(2, 5, 4);
     scene.add(pointLight1);
 
-    pointLight2 = new THREE.PointLight(CONFIG.colorGreen.clone(), CONFIG.lights.pointIntensity * 0.6, CONFIG.lights.pointDistance);
+    pointLight2 = new THREE.PointLight(CONFIG.colorRed.clone(), 0, CONFIG.lights.pointDistance);
     pointLight2.position.set(-3, 2, -2);
     scene.add(pointLight2);
-
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.3);
-    dirLight.position.set(5, 10, 7);
-    scene.add(dirLight);
 }
 
 // ─── STARS ───────────────────────────────────
@@ -127,37 +123,27 @@ function createStarfield() {
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
     starGeo.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
 
-    const starMat = new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 0.15,
-        transparent: true,
-        opacity: 0.7,
-        sizeAttenuation: true,
-    });
-
-    const stars = new THREE.Points(starGeo, starMat);
-    scene.add(stars);
+    const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, transparent: true, opacity: 0.5, sizeAttenuation: true });
+    scene.add(new THREE.Points(starGeo, starMat));
 }
 
 // ─── BACKGROUND PLANET (ADRIAN) ──────────────
 function createPlanet() {
-    // Massive sphere, pushed back far into the scene
     const geometry = new THREE.SphereGeometry(120, 64, 64);
-    
     const material = new THREE.MeshStandardMaterial({
-        color: 0x1a1a24,      // Dark, moody base color
-        roughness: 0.9,
+        color: 0x111a05,      // Dark greenish base
+        roughness: 0.8,
         metalness: 0.1,
-        fog: false            // Stops the deep space fog from deleting the planet
+        fog: false            
     });
 
     planet = new THREE.Mesh(geometry, material);
     planet.position.set(-100, 30, -450); 
     scene.add(planet);
 
-    // Dedicated rim light to create a cinematic crescent shadow on the planet
-    const planetLight = new THREE.DirectionalLight(0xffeacc, 1.2);
-    planetLight.position.set(-300, 150, -200); 
+    // Greenish-yellow crescent rim light
+    const planetLight = new THREE.DirectionalLight(0xb3ff00, 2.5); 
+    planetLight.position.set(-300, 100, -600); 
     planetLight.target = planet;
     scene.add(planetLight);
 }
@@ -174,7 +160,7 @@ function createAstrophageCloud() {
     const offsets   = new Float32Array(count);   
 
     const spread = CONFIG.particles.spread;
-    const c = CONFIG.colorGreen;
+    const c = CONFIG.colorRed; // Particles are strictly red now
 
     for (let i = 0; i < count; i++) {
         const i3 = i * 3;
@@ -204,8 +190,9 @@ function createAstrophageCloud() {
     particleMaterial = new THREE.ShaderMaterial({
         uniforms: {
             uTime:      { value: 0 },
-            uColor:     { value: CONFIG.colorGreen.clone() },
+            uColor:     { value: CONFIG.colorRed.clone() },
             uPixelRatio:{ value: renderer.getPixelRatio() },
+            uOpacity:   { value: 0.0 } // <- STARTS AT 0 (INVISIBLE)
         },
         vertexShader: `
             attribute float size;
@@ -228,6 +215,7 @@ function createAstrophageCloud() {
         `,
         fragmentShader: `
             uniform vec3 uColor;
+            uniform float uOpacity; // We added the opacity uniform here
             varying vec3 vColor;
             varying float vAlpha;
 
@@ -238,7 +226,8 @@ function createAstrophageCloud() {
                 float strength = 1.0 - (dist * 2.0);
                 strength = pow(strength, 1.8);
                 vec3 finalColor = vColor * uColor * 2.5;
-                gl_FragColor = vec4(finalColor, strength * vAlpha * 0.9);
+                // Multiply the alpha by our uOpacity uniform so it fades in
+                gl_FragColor = vec4(finalColor, strength * vAlpha * uOpacity * 0.9);
             }
         `,
         transparent: true,
@@ -256,13 +245,7 @@ function loadModels() {
 
     function onLoad(gltf, name) {
         const model = gltf.scene;
-        model.traverse((child) => {
-            if (child.isMesh) {
-                child.castShadow = true;
-                child.receiveShadow = true;
-            }
-        });
-
+        model.traverse((child) => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; } });
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
@@ -271,17 +254,9 @@ function loadModels() {
         model.scale.setScalar(scale);
         model.position.sub(center.multiplyScalar(scale));
 
-        if (name === 'astronaut') {
-            astronautModel = model;
-            astronautModel.position.set(0, 1.8, 0);
-        } else if (name === 'hull') {
-            hullModel = model;
-            hullModel.position.set(0, 0, 0);
-        } else if (name === 'lift') {
-            liftModel = model;
-            liftModel.position.set(0, 0.5, 0);
-        }
-
+        if (name === 'astronaut') { astronautModel = model; astronautModel.position.set(0, 1.8, 0); } 
+        else if (name === 'hull') { hullModel = model; hullModel.position.set(0, 0, 0); } 
+        else if (name === 'lift') { liftModel = model; liftModel.position.set(0, 0.5, 0); }
         scene.add(model);
     }
 
@@ -289,17 +264,9 @@ function loadModels() {
         const geo = new THREE.BoxGeometry(1, 1, 1);
         const mat = new THREE.MeshBasicMaterial({ color: 0x444444, wireframe: true, transparent: true, opacity: 0.3 });
         const placeholder = new THREE.Mesh(geo, mat);
-        if (name === 'astronaut') {
-            placeholder.position.set(0, 1.8, 0);
-            astronautModel = placeholder;
-        } else if (name === 'hull') {
-            placeholder.position.set(0, 0, 0);
-            placeholder.scale.set(3, 0.8, 6);
-            hullModel = placeholder;
-        } else if (name === 'lift') {
-            placeholder.position.set(0, 0.5, 0);
-            liftModel = placeholder;
-        }
+        if (name === 'astronaut') { placeholder.position.set(0, 1.8, 0); astronautModel = placeholder; } 
+        else if (name === 'hull') { placeholder.position.set(0, 0, 0); placeholder.scale.set(3, 0.8, 6); hullModel = placeholder; } 
+        else if (name === 'lift') { placeholder.position.set(0, 0.5, 0); liftModel = placeholder; }
         scene.add(placeholder);
     }
 
@@ -325,13 +292,17 @@ function setupScrollTrigger() {
         },
     });
 
-    tl.to(particleMaterial.uniforms.uColor.value, { r: CONFIG.colorRed.r, g: CONFIG.colorRed.g, b: CONFIG.colorRed.b, duration: 3, ease: 'power2.inOut' }, 0);
-    tl.to(pointLight1.color, { r: CONFIG.colorRed.r, g: CONFIG.colorRed.g, b: CONFIG.colorRed.b, duration: 3, ease: 'power2.inOut' }, 0);
-    tl.to(pointLight2.color, { r: CONFIG.colorRed.r, g: CONFIG.colorRed.g, b: CONFIG.colorRed.b, duration: 3, ease: 'power2.inOut' }, 0.1); 
+    // 1. Fade the particles IN (0 to 1)
+    tl.to(particleMaterial.uniforms.uOpacity, { value: 1.0, duration: 3, ease: 'power2.inOut' }, 0);
+    
+    // 2. Bring up the violent Red lights
     tl.to(pointLight1, { intensity: CONFIG.lights.pointIntensity * 2.2, distance: CONFIG.lights.pointDistance * 0.6, duration: 3, ease: 'power2.inOut' }, 0);
     tl.to(pointLight2, { intensity: CONFIG.lights.pointIntensity * 1.4, duration: 3, ease: 'power2.inOut' }, 0.1);
+    
+    // 3. Push camera in
     tl.to(camera.position, { z: 9, y: 3.2, duration: 3, ease: 'power1.inOut' }, 0);
-    tl.to(particleMaterial.uniforms.uPixelRatio, { value: renderer.getPixelRatio() * 1.6, duration: 3, ease: 'power2.inOut' }, 0);
+    
+    // 4. Scene fog shifts from dark green/yellow to deep crimson red
     tl.to(scene.fog.color, { r: 0.08, g: 0.01, b: 0.02, duration: 3, ease: 'power2.inOut' }, 0);
     tl.to(scene.background, {
         r: 0.06, g: 0.01, b: 0.02, duration: 3, ease: 'power2.inOut',
@@ -344,11 +315,11 @@ function updateUI(progress) {
     const pct = Math.round(progress * 100);
     uiDensity.textContent = pct + '%';
 
-    if (progress < 0.33) {
-        uiSpectrum.textContent = 'NEON GREEN';
-        uiSpectrum.style.color = '#00FF66';
-    } else if (progress < 0.66) {
-        uiSpectrum.textContent = 'SHIFTING…';
+    if (progress < 0.2) {
+        uiSpectrum.textContent = 'CLEAR';
+        uiSpectrum.style.color = '#b3ff00';
+    } else if (progress < 0.8) {
+        uiSpectrum.textContent = 'ASTROPHAGE DETECTED';
         uiSpectrum.style.color = '#FFAA00';
     } else {
         uiSpectrum.textContent = 'DEEP RED';
@@ -359,13 +330,12 @@ function updateUI(progress) {
     uiHull.textContent = integrity + '%';
     if (integrity < 50) uiHull.style.color = '#FF0033';
     else if (integrity < 80) uiHull.style.color = '#FFAA00';
-    else uiHull.style.color = '#00FF66';
+    else uiHull.style.color = '#b3ff00';
 }
 
 // ─── ANIMATION LOOP ──────────────────────────
 function animate() {
     requestAnimationFrame(animate);
-
     const time = clock.getElapsedTime();
 
     if (particleMaterial) particleMaterial.uniforms.uTime.value = time;
@@ -378,7 +348,6 @@ function animate() {
     if (hullModel) hullModel.rotation.y = Math.sin(time * 0.1) * 0.02;
     if (liftModel) liftModel.position.y = 0.5 + Math.sin(time * 0.6 + 1) * 0.03;
     
-    // Slow cinematic planet rotation
     if (planet) planet.rotation.y += 0.0002;
 
     camera.position.x += (Math.sin(time * 0.2) * 0.3 - camera.position.x) * 0.01;
@@ -386,7 +355,6 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// ─── RESIZE ──────────────────────────────────
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -394,5 +362,4 @@ function onWindowResize() {
     if (particleMaterial) particleMaterial.uniforms.uPixelRatio.value = renderer.getPixelRatio();
 }
 
-// ─── BOOT ────────────────────────────────────
 init();
