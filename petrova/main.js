@@ -13,7 +13,7 @@ const CONFIG = {
 
     particles: {
         count: 12000,
-        size: 0.15,
+        size: 0.4,
         spread: 18,
         speed: 0.3,
     },
@@ -134,7 +134,8 @@ function createPlanet() {
         color: 0x111a05,      // Dark greenish base
         roughness: 0.8,
         metalness: 0.1,
-        fog: false            
+        fog: false,
+        transparent: true
     });
 
     planet = new THREE.Mesh(geometry, material);
@@ -143,7 +144,7 @@ function createPlanet() {
 
     // Greenish-yellow crescent rim light
     const planetLight = new THREE.DirectionalLight(0xb3ff00, 2.5); 
-    planetLight.position.set(-300, 100, -600); 
+    planetLight.position.set(-300, 100, -200); 
     planetLight.target = planet;
     scene.add(planetLight);
 }
@@ -224,10 +225,10 @@ function createAstrophageCloud() {
                 float dist = length(coord);
                 if (dist > 0.5) discard;
                 float strength = 1.0 - (dist * 2.0);
-                strength = pow(strength, 1.8);
-                vec3 finalColor = vColor * uColor * 2.5;
+                strength = pow(strength, 1.2);
+                vec3 finalColor = vColor * uColor * 4.0;
                 // Multiply the alpha by our uOpacity uniform so it fades in
-                gl_FragColor = vec4(finalColor, strength * vAlpha * uOpacity * 0.9);
+                gl_FragColor = vec4(finalColor, strength * vAlpha * uOpacity);
             }
         `,
         transparent: true,
@@ -298,7 +299,9 @@ function setupScrollTrigger() {
     // 2. Bring up the violent Red lights
     tl.to(pointLight1, { intensity: CONFIG.lights.pointIntensity * 2.2, distance: CONFIG.lights.pointDistance * 0.6, duration: 3, ease: 'power2.inOut' }, 0);
     tl.to(pointLight2, { intensity: CONFIG.lights.pointIntensity * 1.4, duration: 3, ease: 'power2.inOut' }, 0.1);
-    
+
+   tl.to(planet.material, { opacity: 0, duration: 3, ease: 'power2.inOut' }, 0);
+   
     // 3. Push camera in
     tl.to(camera.position, { z: 9, y: 3.2, duration: 3, ease: 'power1.inOut' }, 0);
     
