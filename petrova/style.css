@@ -103,17 +103,6 @@ section {
 }
 
 
-.zone-label {
-    font-size: 0.75rem;
-    letter-spacing: 0.4em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.15);
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    position: absolute;
-    right: 3rem;
-}
-
 /* End Zone */
 #end-zone {
     min-height: 150vh;
@@ -121,33 +110,6 @@ section {
     align-items: center;
 }
 
-.end-text {
-    text-align: center;
-    z-index: 20;
-}
-
-.end-text h2 {
-    font-size: clamp(1.2rem, 5vw, 3.5rem);
-    font-weight: 900;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #FF0033;
-    text-shadow: 0 0 30px rgba(255, 0, 51, 0.5), 0 0 80px rgba(255, 0, 51, 0.2);
-    margin-bottom: 1rem;
-    animation: glowRed 2s ease-in-out infinite alternate;
-}
-
-@keyframes glowRed {
-    from { text-shadow: 0 0 30px rgba(255, 0, 51, 0.5), 0 0 80px rgba(255, 0, 51, 0.2); }
-    to   { text-shadow: 0 0 50px rgba(255, 0, 51, 0.8), 0 0 120px rgba(255, 0, 51, 0.4); }
-}
-
-.end-text p {
-    font-size: clamp(0.75rem, 1.8vw, 1.1rem);
-    color: rgba(255, 255, 255, 0.5);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-}
 
 /* 3D Canvas — fixed behind everything */
 #canvas-container {
