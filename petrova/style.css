@@ -156,15 +156,3 @@ html {
 
 
 
-/* Responsive Overrides for Mobile */
-@media (max-width: 768px) {
-    .scroll-indicator {
-        right: 1rem;   
-        bottom: 40%;   /* Moved higher on mobile as well */
-    }
-    
-    .scroll-indicator span {
-        width: 8px;    /* Shrunk back down for smaller phone screens */
-        height: 8px;
-    }
-}
