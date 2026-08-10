@@ -74,34 +74,6 @@ section {
     text-transform: uppercase;
 }
 
-/* Scroll indicator - Pinned to the side */
-.scroll-indicator {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    position: absolute; 
-    bottom: 50%;        
-    right: 3rem;        
-}
-
-.scroll-indicator span {
-    width: 14px;
-    height: 14px;
-    background: #00FF66;
-    border-radius: 50%;
-    opacity: 0.3;
-    animation: bounce 1.5s infinite;
-}
-
-.scroll-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.scroll-indicator span:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); opacity: 0.3; }
-    50%      { transform: translateY(12px); opacity: 1; }
-}
-
 
 /* End Zone */
 #end-zone {
