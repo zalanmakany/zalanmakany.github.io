@@ -29,7 +29,7 @@ body {
 
 /* Each section is tall enough to give scroll room */
 section {
-    min-height: 100vh;
+    min-height: 400vh;
     display: flex;
     justify-content: center;
     position: relative;
