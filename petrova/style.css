@@ -158,6 +158,33 @@ section {
     border-bottom-color: #00FF66;
 }
 
+
+/* Firefox */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: #00FF66 #000000; 
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+    width: 6px; 
+}
+
+::-webkit-scrollbar-track {
+    background: #000000; 
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #00FF66, #FF0033);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, #33ff85, #ff335c); 
+}
+
+
+
 /* Responsive Overrides for Mobile */
 @media (max-width: 768px) {
     .scroll-indicator {
