@@ -401,6 +401,17 @@ function setupScrollTrigger() {
         },
     });
 
+   gsap.to("html", {
+    "--scroll-color": "#FF0033",
+    ease: "none",
+    scrollTrigger: {
+      trigger: "body",
+      start: "top top",
+      end: "bottom bottom",
+      scrub: true // Ties the color change directly to the scrollbar's physical position
+    }
+  });
+
     // 1. Fade the particles IN (0 to 1)
     tl.to(particleMaterial.uniforms.uOpacity, { value: 1.0, duration: 3, ease: 'power2.inOut' }, 0);
     
